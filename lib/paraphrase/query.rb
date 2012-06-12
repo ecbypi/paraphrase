@@ -9,7 +9,7 @@ module Paraphrase
     end
 
     def self.paraphrases(class_name)
-      self.source = class_name
+      self.source = Object.const_get(class_name) rescue class_name
     end
 
     def self.key(mapping, options = {})
