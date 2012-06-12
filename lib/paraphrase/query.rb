@@ -8,8 +8,8 @@ module Paraphrase
       attr_accessor :source, :mappings
     end
 
-    def self.paraphrases(class_name)
-      self.source = Object.const_get(class_name) rescue class_name
+    def self.paraphrases(source_name)
+      self.source = Object.const_get(source_name) rescue source_name
     end
 
     def self.key(mapping, options = {})
