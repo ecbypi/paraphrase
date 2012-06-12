@@ -18,3 +18,5 @@ module Paraphrase
     self.mappings[name]
   end
 end
+
+require 'paraphrase/query'
