@@ -2,25 +2,6 @@ require 'spec_helper'
 
 module Paraphrase
   describe Query do
-
-    class User
-      attr_accessor :name
-
-      def initialize(name)
-        @name = name
-      end
-
-      def self.name_like(name)
-        [self.new(name)]
-      end
-    end
-
-    class UserParaphrase < Paraphrase::Query
-      paraphrases :User
-
-      key :name => :name_like
-    end
-
     let(:paraphrase) { UserParaphrase.new(:name => 'Jon Snow', :nickname => 'pretty') }
 
     it "removes params that were not added via `key`" do
