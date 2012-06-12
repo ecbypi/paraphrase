@@ -27,6 +27,10 @@ module Paraphrase
       it "registers a new attribute for the sublcass" do
         paraphrase.name.should eq 'Jon Snow'
       end
+
+      it "adds instances of Paraphrase::Mapping to :mappings" do
+        UserParaphrase.mappings.first.should be_instance_of Paraphrase::Mapping
+      end
     end
 
     describe ".keys" do
