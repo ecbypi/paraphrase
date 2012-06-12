@@ -33,5 +33,17 @@ module Paraphrase
         hash
       end
     end
+
+    def source
+      source = self.class.source
+
+      if source.is_a?(Class)
+        return source
+      elsif Object.const_defined?(source)
+        return self.class.source = Object.const_get(source)
+      else
+        raise SourceMissingError, "#{source} is not defined"
+      end
+    end
   end
 end

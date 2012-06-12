@@ -38,5 +38,26 @@ module Paraphrase
         UserParaphrase.keys.should eq [:name]
       end
     end
+
+    describe "#source" do
+      before :all do
+        UserParaphrase.paraphrases :Users
+      end
+
+      after :all do
+        UserParaphrase.paraphrases :User
+        Object.send(:remove_const, :Users)
+      end
+
+      it "sets source to object if constant is later defined" do
+        Object.const_set(:Users, Class.new)
+        paraphrase.source.should eq Users
+      end
+
+      it "raises error when class is still not defined" do
+        UserParaphrase.paraphrases :Uzer
+        expect { paraphrase.source }.to raise_error Paraphrase::SourceMissingError
+      end
+    end
   end
 end
