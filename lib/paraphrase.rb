@@ -4,18 +4,18 @@ require 'paraphrase/errors'
 module Paraphrase
 
   class << self
-    attr_accessor :mappings
+    attr_reader :mappings
   end
 
   def self.register(name, &block)
-    self.mappings ||= {}
+    @mappings ||= {}
 
-    raise Paraphrase::DuplicateMappingError if self.mappings[name]
-    self.mappings[name] = Class.new(&block)
+    raise Paraphrase::DuplicateMappingError if mappings[name]
+    mappings[name] = Class.new(&block)
   end
 
   def self.[](name)
-    self.mappings[name]
+    mappings[name]
   end
 end
 
