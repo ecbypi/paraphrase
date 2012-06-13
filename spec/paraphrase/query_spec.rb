@@ -32,10 +32,5 @@ module Paraphrase
       end
     end
 
-    describe ".keys" do
-      it "returns the registered param keys" do
-        UserParaphrase.keys.should eq [:name]
-      end
-    end
   end
 end

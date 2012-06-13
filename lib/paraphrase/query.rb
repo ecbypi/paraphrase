@@ -23,17 +23,16 @@ module Paraphrase
       attr_reader mapping.param_key
     end
 
-    def self.keys
-      self.mappings.map(&:param_key)
-    end
-
     def initialize(params)
-      @params = self.class.keys.inject({}) do |hash, key|
+      @params = self.class.mappings.inject({}) do |hash, mapping|
+        key = mapping.param_key
         value = params[key]
+
         if !value.empty? && !value.nil?
           instance_variable_set("@#{key}", value)
           hash[key] = value
         end
+
         hash
       end
     end
