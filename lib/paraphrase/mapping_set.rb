@@ -1,7 +1,7 @@
 require 'paraphrase/scope_key'
 
 module Paraphrase
-  class Query
+  class MappingSet
     attr_reader :params
 
     class << self

@@ -19,4 +19,4 @@ module Paraphrase
   end
 end
 
-require 'paraphrase/query'
+require 'paraphrase/mapping_set'

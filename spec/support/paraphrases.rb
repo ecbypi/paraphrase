@@ -10,7 +10,7 @@ class User
   end
 end
 
-class UserParaphrase < Paraphrase::Query
+class UserMapping < Paraphrase::MappingSet
   paraphrases :User
 
   key :name => :name_like
