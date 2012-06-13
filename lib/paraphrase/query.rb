@@ -1,11 +1,11 @@
-require 'paraphrase/mapping'
+require 'paraphrase/scope_key'
 
 module Paraphrase
   class Query
     attr_reader :params
 
     class << self
-      attr_reader :source, :mappings
+      attr_reader :source, :scope_keys
     end
 
     def self.paraphrases(source_name)
@@ -15,22 +15,22 @@ module Paraphrase
     end
 
     def self.key(mapping, options = {})
-      @mappings ||=[]
+      @scope_keys ||=[]
 
-      mapping = Mapping.new(mapping, options)
-      @mappings << mapping
+      scope_key = ScopeKey.new(mapping, options)
+      @scope_keys << scope_key
 
-      attr_reader mapping.param_key
+      attr_reader scope_key.name
     end
 
     def initialize(params)
-      @params = self.class.mappings.inject({}) do |hash, mapping|
-        key = mapping.param_key
-        value = params[key]
+      @params = self.class.scope_keys.inject({}) do |hash, key|
+        attribute = key.name
+        value = params[attribute]
 
         if !value.empty? && !value.nil?
-          instance_variable_set("@#{key}", value)
-          hash[key] = value
+          instance_variable_set("@#{attribute}", value)
+          hash[attribute] = value
         end
 
         hash

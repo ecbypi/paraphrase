@@ -23,8 +23,8 @@ module Paraphrase
         paraphrase.name.should eq 'Jon Snow'
       end
 
-      it "adds instances of Paraphrase::Mapping to :mappings" do
-        UserParaphrase.mappings.first.should be_instance_of Paraphrase::Mapping
+      it "adds information to :scope_keys" do
+        UserParaphrase.scope_keys.should_not be_empty
       end
     end
 
