@@ -9,7 +9,9 @@ module Paraphrase
     end
 
     def self.paraphrases(source_name)
-      self.source = Object.const_get(source_name) rescue source_name
+      self.source = Object.const_get(source_name)
+    rescue NameError
+      raise SourceMissingError, "source #{source} is not defined"
     end
 
     def self.key(mapping, options = {})
@@ -31,18 +33,6 @@ module Paraphrase
           hash[key] = value
         end
         hash
-      end
-    end
-
-    def source
-      source = self.class.source
-
-      if source.is_a?(Class)
-        return source
-      elsif Object.const_defined?(source)
-        return self.class.source = Object.const_get(source)
-      else
-        raise SourceMissingError, "#{source} is not defined"
       end
     end
   end
