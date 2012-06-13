@@ -11,7 +11,7 @@ module Paraphrase
     @mappings ||= {}
 
     raise Paraphrase::DuplicateMappingError if mappings[name]
-    mappings[name] = Class.new(&block)
+    @mappings[name] = Class.new(&block)
   end
 
   def self.[](name)
