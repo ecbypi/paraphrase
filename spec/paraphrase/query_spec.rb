@@ -16,10 +16,6 @@ module Paraphrase
       it "raises an error if class does not exist" do
         expect { UserParaphrase.paraphrases :Users }.to raise_error Paraphrase::SourceMissingError
       end
-
-      after :all do
-        UserParaphrase.paraphrases :User
-      end
     end
 
     describe ".key" do
