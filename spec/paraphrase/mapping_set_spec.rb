@@ -28,5 +28,21 @@ module Paraphrase
       end
     end
 
+    describe "#results" do
+      it "applies scopes to source and caches results" do
+        User.should_receive(:name_like).with('Jon Snow')
+        mapping.results
+      end
+
+      it "caches the result" do
+        mapping.results
+        User.should_not_receive(:name_like)
+        mapping.results
+      end
+
+      it "fills in results attribute" do
+        mapping.results.should_not be_empty
+      end
+    end
   end
 end

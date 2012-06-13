@@ -36,5 +36,11 @@ module Paraphrase
         hash
       end
     end
+
+    def results
+      @results ||= self.class.scope_keys.inject(self.class.source) do |result, key|
+        result.send(key.scope, send(key.name))
+      end
+    end
   end
 end
