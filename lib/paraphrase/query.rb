@@ -5,18 +5,20 @@ module Paraphrase
     attr_reader :params
 
     class << self
-      attr_accessor :source, :mappings
+      attr_reader :source, :mappings
     end
 
     def self.paraphrases(source_name)
-      self.source = Object.const_get(source_name)
+      @source = Object.const_get(source_name)
     rescue NameError
       raise SourceMissingError, "source #{source} is not defined"
     end
 
     def self.key(mapping, options = {})
+      @mappings ||=[]
+
       mapping = Mapping.new(mapping, options)
-      (self.mappings ||= []) << mapping
+      @mappings << mapping
 
       attr_reader mapping.param_key
     end
