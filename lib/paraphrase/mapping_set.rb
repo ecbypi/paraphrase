@@ -28,7 +28,7 @@ module Paraphrase
         attribute = key.name
         value = params[attribute]
 
-        if !value.empty? && !value.nil?
+        if !value.nil? && !value.empty?
           instance_variable_set("@#{attribute}", value)
           hash[attribute] = value
         end
