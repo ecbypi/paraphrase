@@ -23,7 +23,7 @@ module Paraphrase
       attr_reader scope_key.name
     end
 
-    def initialize(params)
+    def initialize(params = {})
       @params = self.class.scope_keys.inject({}) do |hash, key|
         attribute = key.name
         value = params[attribute]
