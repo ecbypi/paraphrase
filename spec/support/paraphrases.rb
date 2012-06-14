@@ -17,6 +17,6 @@ end
 class UserMapping < Paraphrase::MappingSet
   paraphrases :User
 
-  key :name => :name_like
+  key :name => :name_like, :required => true
   key :title => :title_like
 end

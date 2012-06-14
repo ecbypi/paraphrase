@@ -38,14 +38,34 @@ module Paraphrase
     end
 
     def results
+      return [] if invalid?
       @results ||= keys.inject(self.class.source) do |result, key|
         input = send(key.name)
         input ? result.send(key.scope, input) : result
       end
     end
 
+    def valid?
+      required_attributes = required_keys.map(&method(:read_attribute))
+      !required_attributes.map!(&:nil?).any?
+    end
+
+    def invalid?
+      !valid?
+    end
+
     def keys
       self.class.scope_keys
+    end
+
+    def required_keys
+      keys.select { |key| key.required? }
+    end
+
+    private
+
+    def read_attribute(key)
+      params[key.name]
     end
   end
 end

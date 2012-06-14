@@ -9,6 +9,10 @@ module Paraphrase
       @options = options.freeze
     end
 
+    def required?
+      !options[:required].nil?
+    end
+
     alias :param_key :name
   end
 end

@@ -48,6 +48,10 @@ module Paraphrase
       it "fills in results attribute" do
         mapping.results.should_not be_nil
       end
+
+      it "returns empty array if required attribute is nil" do
+        UserMapping.new.results.should eq []
+      end
     end
   end
 end
