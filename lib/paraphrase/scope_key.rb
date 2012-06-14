@@ -2,8 +2,10 @@ module Paraphrase
   class ScopeKey
     attr_reader :name, :scope, :options
 
-    def initialize(mapping, options = {})
-      @name, @scope = mapping.to_a.first
+    def initialize(options)
+      @name, @scope = options.first
+
+      options.delete(@name)
       @options = options.freeze
     end
 

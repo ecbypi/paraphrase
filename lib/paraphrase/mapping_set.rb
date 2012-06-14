@@ -14,10 +14,10 @@ module Paraphrase
       raise SourceMissingError, "source #{source} is not defined"
     end
 
-    def self.key(mapping, options = {})
+    def self.key(options)
       @scope_keys ||=[]
 
-      scope_key = ScopeKey.new(mapping, options)
+      scope_key = ScopeKey.new(options)
       @scope_keys << scope_key
 
       attr_reader scope_key.name
