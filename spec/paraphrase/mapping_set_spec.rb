@@ -40,6 +40,11 @@ module Paraphrase
         mapping.results
       end
 
+      it "does not apply scopes if value is not present" do
+        User.should_not_receive(:title_like)
+        mapping.results
+      end
+
       it "fills in results attribute" do
         mapping.results.should_not be_nil
       end

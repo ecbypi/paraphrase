@@ -39,7 +39,8 @@ module Paraphrase
 
     def results
       @results ||= self.class.scope_keys.inject(self.class.source) do |result, key|
-        result.send(key.scope, send(key.name))
+        input = send(key.name)
+        input ? result.send(key.scope, input) : result
       end
     end
   end
