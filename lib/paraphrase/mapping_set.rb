@@ -24,7 +24,7 @@ module Paraphrase
     end
 
     def initialize(params = {})
-      @params = self.class.scope_keys.inject({}) do |hash, key|
+      @params = keys.inject({}) do |hash, key|
         attribute = key.name
         value = params[attribute]
 
@@ -38,10 +38,14 @@ module Paraphrase
     end
 
     def results
-      @results ||= self.class.scope_keys.inject(self.class.source) do |result, key|
+      @results ||= keys.inject(self.class.source) do |result, key|
         input = send(key.name)
         input ? result.send(key.scope, input) : result
       end
+    end
+
+    def keys
+      self.class.scope_keys
     end
   end
 end
