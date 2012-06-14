@@ -41,7 +41,7 @@ module Paraphrase
       end
 
       it "fills in results attribute" do
-        mapping.results.should_not be_empty
+        mapping.results.should_not be_nil
       end
     end
   end
