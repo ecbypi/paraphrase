@@ -14,5 +14,15 @@ module Paraphrase
     def required?
       !options[:required].nil?
     end
+
+    def values(params)
+      values = param_keys.map { |key| params[key] }
+
+      if options[:preprocess]
+        [options[:preprocess].call(*values)]
+      else
+        values
+      end
+    end
   end
 end
