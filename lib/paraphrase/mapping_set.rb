@@ -2,7 +2,6 @@ require 'paraphrase/scope_key'
 
 module Paraphrase
   class MappingSet
-    attr_reader :params
 
     class << self
       attr_reader :source, :scope_keys
@@ -19,53 +18,31 @@ module Paraphrase
 
       scope_key = ScopeKey.new(options)
       @scope_keys << scope_key
-
-      attr_reader scope_key.name
     end
 
     def initialize(params = {})
-      @params = keys.inject({}) do |hash, key|
-        attribute = key.name
-        value = params[attribute]
-
-        if !value.nil? && !value.empty?
-          instance_variable_set("@#{attribute}", value)
-          hash[attribute] = value
-        end
-
-        hash
-      end
+      valid_keys = _keys.map(&:param_keys).flatten
+      @params = params.select { |key, value| valid_keys.include?(key) }
     end
 
     def results
-      return [] if invalid?
-      @results ||= keys.inject(self.class.source) do |result, key|
-        input = send(key.name)
-        input ? result.send(key.scope, input) : result
+      @results ||= _keys.inject(self.class.source) do |chain, key|
+        inputs = key.param_keys.map { |key| @params[key] }
+
+        if key.required?
+          break []
+        else
+          next chain
+        end if inputs.compact.empty?
+
+        chain.send(key.scope, *inputs)
       end
-    end
-
-    def valid?
-      required_attributes = required_keys.map(&method(:read_attribute))
-      !required_attributes.map!(&:nil?).any?
-    end
-
-    def invalid?
-      !valid?
-    end
-
-    def keys
-      self.class.scope_keys
-    end
-
-    def required_keys
-      keys.select { |key| key.required? }
     end
 
     private
 
-    def read_attribute(key)
-      params[key.name]
+    def _keys
+      self.class.scope_keys
     end
   end
 end

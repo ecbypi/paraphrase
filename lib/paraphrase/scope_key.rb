@@ -1,18 +1,18 @@
 module Paraphrase
   class ScopeKey
-    attr_reader :name, :scope, :options
+    attr_reader :param_keys, :scope, :options
 
     def initialize(options)
-      @name, @scope = options.first
+      mapping = options.first
+      @param_keys = [mapping.first].flatten
+      @scope = mapping.last
 
-      options.delete(@name)
+      options.delete(mapping.first)
       @options = options.freeze
     end
 
     def required?
       !options[:required].nil?
     end
-
-    alias :param_key :name
   end
 end

@@ -2,11 +2,7 @@ require 'spec_helper'
 
 module Paraphrase
   describe MappingSet do
-    let(:mapping) { UserMapping.new(:name => 'Jon Snow', :nickname => 'pretty') }
-
-    it "removes params that were not added via `key`" do
-      mapping.params.should_not have_key 'nickname'
-    end
+    let(:mapping) { UserMapping.new(:last_name => 'Snow', :first_name => 'Jon', :nickname => 'pretty') }
 
     describe ".paraphrase" do
       it "caches the class being queried" do
@@ -19,18 +15,14 @@ module Paraphrase
     end
 
     describe ".key" do
-      it "registers a new attribute for the sublcass" do
-        mapping.name.should eq 'Jon Snow'
-      end
-
       it "adds information to :scope_keys" do
         UserMapping.scope_keys.should_not be_empty
       end
     end
 
     describe "#results" do
-      it "applies scopes to source and caches results" do
-        User.should_receive(:name_like).with('Jon Snow')
+      it "applies scopes to source preserving order of keys" do
+        User.should_receive(:name_like).with('Jon', 'Snow')
         mapping.results
       end
 

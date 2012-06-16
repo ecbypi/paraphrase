@@ -5,7 +5,7 @@ class User
     @name = name
   end
 
-  def self.name_like(name)
+  def self.name_like(first, last)
     self
   end
 
@@ -17,6 +17,6 @@ end
 class UserMapping < Paraphrase::MappingSet
   paraphrases :User
 
-  key :name => :name_like, :required => true
+  key [:first_name, :last_name] => :name_like, :required => true
   key :title => :title_like
 end
