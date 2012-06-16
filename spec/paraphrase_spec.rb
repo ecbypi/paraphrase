@@ -1,9 +1,23 @@
 require 'spec_helper'
-require 'paraphrase'
 
 describe Paraphrase do
 
   before(:all) { Paraphrase.register(:user) {} }
+
+  describe ".mapping_class=" do
+
+    after :all do
+      Paraphrase.mapping_class = Paraphrase::MappingSet
+    end
+
+    it "can configure the mapping class" do
+      class MyClass; end
+      Paraphrase.mapping_class = MyClass
+      Paraphrase.register(:my_class) {}
+
+      Paraphrase.mappings[:my_class].superclass.should eq MyClass
+    end
+  end
 
   describe ".register" do
     it "adds a mapping of params to scopes to .mappings" do
