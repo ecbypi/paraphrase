@@ -13,7 +13,7 @@ module Paraphrase
       store_name = options[:as] ? options[:as] : source_name
       Paraphrase.register(store_name, @source)
     rescue NameError
-      raise SourceMissingError, "source #{source} is not defined"
+      raise SourceMissingError, "source #{source_name} is not defined"
     end
 
     def self.key(options)
