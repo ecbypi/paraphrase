@@ -7,9 +7,11 @@ module Paraphrase
       attr_reader :source, :scope_keys
     end
 
-    def self.paraphrases(source_name)
+    def self.paraphrases(source_name, options = {})
       @source = Object.const_get(source_name)
-      Paraphrase.register(source_name, @source)
+
+      store_name = options[:as] ? options[:as] : source_name
+      Paraphrase.register(store_name, @source)
     rescue NameError
       raise SourceMissingError, "source #{source} is not defined"
     end

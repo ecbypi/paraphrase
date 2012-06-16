@@ -13,6 +13,12 @@ module Paraphrase
         Paraphrase.mappings[:User].should_not be_nil
       end
 
+      it "can specify alias for Paraphrase.mappings" do
+        UserMapping.paraphrases :User, :as => :accounts
+
+        Paraphrase.mappings[:accounts].should_not be_nil
+      end
+
       it "raises an error if class does not exist" do
         expect { UserMapping.paraphrases :Users }.to raise_error Paraphrase::SourceMissingError
       end
