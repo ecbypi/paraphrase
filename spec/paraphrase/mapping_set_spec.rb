@@ -9,6 +9,10 @@ module Paraphrase
         UserMapping.source.should eq User
       end
 
+      it "registers the mapping in Paraphrase.mappings" do
+        Paraphrase.mappings[:User].should_not be_nil
+      end
+
       it "raises an error if class does not exist" do
         expect { UserMapping.paraphrases :Users }.to raise_error Paraphrase::SourceMissingError
       end

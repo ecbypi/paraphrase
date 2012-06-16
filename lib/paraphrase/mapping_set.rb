@@ -9,6 +9,7 @@ module Paraphrase
 
     def self.paraphrases(source_name)
       @source = Object.const_get(source_name)
+      Paraphrase.register(source_name, @source)
     rescue NameError
       raise SourceMissingError, "source #{source} is not defined"
     end

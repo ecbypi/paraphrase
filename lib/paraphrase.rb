@@ -11,11 +11,16 @@ module Paraphrase
 
   self.mapping_class = MappingSet
 
-  def self.register(name, &block)
+  def self.register(name, klass=nil, &block)
     @mappings ||= {}
 
     raise Paraphrase::DuplicateMappingError if mappings[name]
-    @mappings[name] = Class.new(@mapping_class, &block)
+
+    @mappings[name] = if block_given?
+      Class.new(@mapping_class, &block)
+    elsif klass.is_a?(Class)
+      klass
+    end
   end
 
   def self.[](name)
