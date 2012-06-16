@@ -23,6 +23,9 @@ module Paraphrase
       else
         values
       end
+
+    rescue
+      values
     end
   end
 end

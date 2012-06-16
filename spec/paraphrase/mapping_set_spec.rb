@@ -32,7 +32,7 @@ module Paraphrase
 
     describe "#results" do
       it "applies scopes to source preserving order of keys" do
-        User.should_receive(:name_like).with('Jon', 'Snow')
+        User.should_receive(:name_like).with('Jon Snow')
         mapping.results
       end
 

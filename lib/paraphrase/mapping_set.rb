@@ -30,7 +30,7 @@ module Paraphrase
 
     def results
       @results ||= _keys.inject(self.class.source) do |chain, key|
-        inputs = key.param_keys.map { |key| @params[key] }
+        inputs = key.values(@params)
 
         if key.required?
           break []
