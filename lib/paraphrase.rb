@@ -1,6 +1,6 @@
 require 'paraphrase/version'
 require 'paraphrase/errors'
-require 'paraphrase/mapping_set'
+require 'paraphrase/query'
 
 module Paraphrase
 
@@ -9,7 +9,7 @@ module Paraphrase
     attr_writer :mapping_class
   end
 
-  self.mapping_class = MappingSet
+  self.mapping_class = Query
 
   def self.register(name, klass=nil, &block)
     @mappings ||= {}

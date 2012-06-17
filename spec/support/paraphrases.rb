@@ -5,18 +5,22 @@ class User
     @name = name
   end
 
-  def self.name_like(name)
+  def self.name_like(*names)
     self
   end
 
   def self.title_like(title)
     self
   end
+
+  def self.to_a
+    []
+  end
 end
 
-class UserMapping < Paraphrase::MappingSet
+class UserSearch < Paraphrase::Query
   paraphrases :User
 
-  key [:first_name, :last_name] => :name_like, :required => true, :preprocess => lambda { |first, last| first + ' ' + last }
-  key :title => :title_like
+  scope :name_like, :key => [:first_name, :last_name], :required => true, :preprocess => lambda { |first, last| first + ' ' + last }
+  scope :title_like, :key => :title
 end

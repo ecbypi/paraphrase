@@ -7,7 +7,7 @@ describe Paraphrase do
   describe ".mapping_class=" do
 
     after :all do
-      Paraphrase.mapping_class = Paraphrase::MappingSet
+      Paraphrase.mapping_class = Paraphrase::Query
     end
 
     it "can configure the mapping class" do

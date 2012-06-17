@@ -1,21 +1,24 @@
 require 'spec_helper'
 
 module Paraphrase
-  describe ScopeKey do
+  describe Scope do
     let(:key) do
-      ScopeKey.new :name => :name_like, :foo => :bar, :preprocess => lambda { |name| name.upcase }
+      Scope.new :name_like, { :key => :name, :foo => :bar, :preprocess => lambda { |name| name.upcase } }, :name => 'Jon Snow'
     end
-    let(:compound_key) { ScopeKey.new([:first_name, :last_name] => :name_like, :required => true) }
+
+    let(:compound_key) do
+      Scope.new :name_like, { :key => [:first_name, :last_name], :required => true }, { :first_name => 'Jon', :last_name => 'Snow' }
+    end
 
     it "extracts first hash option as key => scope pair" do
-      key.param_keys.should eq [:name]
-      key.scope.should eq :name_like
+      key.keys.should eq [:name]
+      key.name.should eq :name_like
       key.options.should have_key :foo
       key.options.should have_value :bar
     end
 
     it "handles compound keys" do
-      compound_key.param_keys.should eq [:first_name, :last_name]
+      compound_key.keys.should eq [:first_name, :last_name]
     end
 
     describe "#required?" do
@@ -28,15 +31,15 @@ module Paraphrase
       end
     end
 
-    describe "#values" do
-      it "returns relevant values from supplied hash" do
-        values = compound_key.values(:first_name => 'Jon', :last_name => 'Snow', :title => 'Wall Watcher')
-        values.should eq ['Jon', 'Snow']
+    describe "#chain" do
+      it "applies it's scope to the source" do
+        User.should_receive(:name_like).with('Jon', 'Snow')
+        compound_key.chain(User)
       end
 
-      it "runs any supplied pre-processors on values" do
-        value = key.values(:name => 'Jon Snow', :title => 'Wall Watcher')
-        value.should eq ['JON SNOW']
+      it "runs any pre-processors on values" do
+        User.should_receive(:name_like).with('JON SNOW')
+        key.chain(User)
       end
     end
   end
