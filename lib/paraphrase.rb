@@ -1,6 +1,7 @@
 require 'paraphrase/version'
 require 'paraphrase/errors'
 require 'paraphrase/query'
+require 'paraphrase/syntax'
 
 module Paraphrase
 
