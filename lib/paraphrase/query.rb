@@ -4,7 +4,11 @@ module Paraphrase
   class Query
 
     class << self
-      attr_reader :source, :scopes
+      attr_reader :source
+    end
+
+    def self.scopes
+      @scopes ||= {}
     end
 
     def self.paraphrases(source_name, options = {})
@@ -17,12 +21,11 @@ module Paraphrase
     end
 
     def self.scope(name, options)
-      @scopes ||= {}
-      @scopes[name] = options
+      scopes[name] = options
     end
 
     def initialize(params = {})
-      @scopes = _scopes.map { |name, options| Scope.new(name, options, params) }
+      @scopes = self.class.scopes.map { |name, options| Scope.new(name, options, params) }
     end
 
     def results
@@ -39,12 +42,6 @@ module Paraphrase
 
     def scopes_valid?
       @scopes.select { |scope| scope.required? }.map(&:valid?).all?
-    end
-
-    private
-
-    def _scopes
-      self.class.scopes
     end
   end
 end
