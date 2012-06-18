@@ -17,10 +17,10 @@ module Paraphrase
     raise Paraphrase::DuplicateMappingError if mappings[name]
 
     @mappings[name] = if block_given?
-      Class.new(@mapping_class, &block)
-    elsif klass.is_a?(Class)
-      klass
-    end
+                        Class.new(@mapping_class, &block)
+                      elsif klass.is_a?(Class)
+                        klass
+                      end
   end
 
   def self.[](name)
