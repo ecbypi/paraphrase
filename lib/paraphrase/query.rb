@@ -15,7 +15,7 @@ module Paraphrase
       @source = Object.const_get(source_name)
 
       store_name = options[:as] ? options[:as] : source_name
-      Paraphrase.register(store_name, @source)
+      Paraphrase.register(store_name, self)
     rescue NameError
       raise SourceMissingError, "source #{source_name} is not defined"
     end
