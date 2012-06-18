@@ -26,4 +26,8 @@ module Paraphrase
   def self.[](name)
     mappings[name]
   end
+
+  def self.query(name, params)
+    mappings[name].new(params)
+  end
 end

@@ -34,4 +34,10 @@ describe Paraphrase do
       Paraphrase[:user].should eq Paraphrase.mappings[:user]
     end
   end
+
+  describe ".query" do
+    it "instantiates a new :mapping_class" do
+      Paraphrase.query(:user, {}).should be_a Paraphrase::Query
+    end
+  end
 end
