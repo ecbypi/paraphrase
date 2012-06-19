@@ -11,13 +11,11 @@ module Paraphrase
       @scopes ||= {}
     end
 
-    def self.paraphrases(source_name, options = {})
-      @source = Object.const_get(source_name)
+    def self.paraphrases(klass, options = {})
+      @source = klass
 
-      store_name = options[:as] ? options[:as] : source_name
-      Paraphrase.register(store_name, self)
-    rescue NameError
-      raise SourceMissingError, "source #{source_name} is not defined"
+      store_name = options[:as] ? options[:as] : klass.to_s.to_sym
+      Paraphrase[store_name] ||= self
     end
 
     def self.scope(name, options)

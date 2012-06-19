@@ -9,6 +9,7 @@ module Paraphrase
 
     def register_mapping(name = @@mapping_name, &block)
       Paraphrase.register(name, &block)
+      Paraphrase[@@mapping_name].paraphrases(self)
     end
 
     def paraphrase(params)

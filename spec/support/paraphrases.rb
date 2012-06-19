@@ -19,7 +19,7 @@ class User
 end
 
 class UserSearch < Paraphrase::Query
-  paraphrases :User
+  paraphrases User
 
   scope :name_like, :key => [:first_name, :last_name], :required => true, :preprocess => lambda { |first, last| first + ' ' + last }
   scope :title_like, :key => :title

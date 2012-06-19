@@ -6,26 +6,27 @@ require 'paraphrase/syntax'
 module Paraphrase
 
   class << self
-    attr_reader :mappings
     attr_writer :mapping_class
   end
 
   self.mapping_class = Query
 
-  def self.register(name, klass = nil, &block)
+  def self.mappings
     @mappings ||= {}
+  end
 
-    raise Paraphrase::DuplicateMappingError if mappings[name]
-
-    @mappings[name] = if block_given?
-                        Class.new(@mapping_class, &block)
-                      elsif klass.is_a?(Class)
-                        klass
-                      end
+  def self.register(name, &block)
+    raise DuplicateMappingError if mappings[name]
+    mappings[name] = Class.new(@mapping_class, &block)
   end
 
   def self.[](name)
     mappings[name]
+  end
+
+  def self.[]=(name, klass)
+    raise DuplicateMappingError if mappings[name]
+    mappings[name] = klass
   end
 
   def self.query(name, params)
