@@ -1,8 +1,6 @@
 # paraphrase
 
 paraphrase is a DSL to map one or multiple request params to model scopes.
-Through `ActiveModel::Validations` you can validate inputs using the provided
-validators or your own custom ones.
 
 paraphrase was designed and geared towards building a query-based public API
 where you may want to require certain parameters to prevent consumers from
@@ -14,7 +12,7 @@ performance-intensive data-dumps.
 Via a gemfile:
 
 ```ruby
-gem 'guise'
+gem 'paraphrase'
 ```
 
 ```
@@ -24,18 +22,21 @@ $ bundle
 Or manually:
 
 ```
-$ gem install guise
+$ gem install paraphrase
 ```
 
 ## Usage
 
-paraphrase aims to be as flexible as possible for your needs. You can use it:
+paraphrase aims to be as flexible as possible for your needs. The only
+requirement is a class with chainable methods where the result responds to
+`:to_a`. You can use it:
 
 * From within an `ActiveRecord` subclass:
+
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    key :author, :to => :by_user
+    scope :by_user, :key => :author
   end
 
   def self.by_user(author_name)
@@ -45,22 +46,25 @@ end
 ```
 
 * In an initializer to register multiple mappings in one place:
+
 ```ruby
 # config/initializers/paraphrase.rb
-Paraphrase.confirgure do |mappings|
-  mappings.register :post do
-    # ...
+
+Paraphrase.configure do |mappings|
+  mappings.register :Post do
+    paraphrases Post
+    scope :by_user, :key => :author
   end
 end
 ```
 
 * By creating a subclass of `Paraphrase::Query`:
-```ruby
-# app/paraphrases/post_paraphrase.rb
-class PostParaphrase < Paraphrase::Query
-  paraphrases :post
 
-  key :author, :to => :by_user
+```ruby
+class PostQuery < Paraphrase::Query
+  paraphrases Post
+
+  scope :by_user, :key => :author
 end
 ```
 
@@ -77,7 +81,7 @@ class PostsController < ApplicationController
     @posts = Post.paraphrase(params)
 
     # Or
-    # @posts = Paraphrase.query(:post, params)
+    # @posts = Paraphrase.query(:Post, params)
 
     # If you created a subclass
     # @posts = PostParaphrase.new(params)
@@ -87,46 +91,41 @@ class PostsController < ApplicationController
 end
 ```
 
-In any of these contexts, the `key` method registers attribute(s) to extract
-from the params supplied and what scope to pass them to. If you pass in a
-block, you can preprocess the value.
+In any of these contexts, the `:key` option of the `:scope` method registers
+attribute(s) to extract from the params supplied and what scope to pass them
+to. An array of keys can be supplied to pass multiple attributes to a scope.
+Additionally, there is a `:preprocess` option to prepare values for the scope
+to be called.
 
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    key :posted_on, :to => :by_user do |name|
-      name.split
-    end
+    scope :by_user, :key => [:first_name, :last_name], :preprocess => lambda { |first, last| [first, last].join(' ') }
   end
 
-  def self.by_user(first_name, last_name)
-    joins(:user).where(:user => { :first_name => first_name, :last_name => last_name })
+  def self.by_user(name)
+    joins(:user).where(:user => { :name => name })
   end
 end
 ```
 
-You can pass in multiple keys too if your scope requires multiple values.
+If a key is required, passed `:required => true` to the options. This will
+return an empty results set
 
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    key [:first_name, :last_name], :to => :by_user
-  end
-
-  def self.by_user(first_name, last_name)
-    joins(:user).where(:user => { :first_name => first_name, :last_name => last_name })
+    scope :by_author, :key => :author, :required => true
+    scope :published_after, :key => :pub_date
   end
 end
+
+Poast.paraphrase(:pub_date => '2010-10-30') # => []
 ```
 
-You can declare `ActiveModel::Validations` in the mapping block as well.
+## Thoughts on the future
 
-```ruby
-class Post < ActiveRecord::Base
-  register_mapping do
-    key [:first_name, :last_name], :to => :by_user
-
-    validates :first_name, :last_name, :presence => true
-  end
-end
-```
+1. Smooth out preprocess syntax/reconsider its usefulness.
+2. Enable requiring a subset of a compound key.
+3. Support nested hashes in params.
+4. Better sort how keys in `Paraphrase.mappings` are set.
