@@ -12,7 +12,7 @@ module Paraphrase
 
   self.mapping_class = Query
 
-  def self.register(name, klass=nil, &block)
+  def self.register(name, klass = nil, &block)
     @mappings ||= {}
 
     raise Paraphrase::DuplicateMappingError if mappings[name]
