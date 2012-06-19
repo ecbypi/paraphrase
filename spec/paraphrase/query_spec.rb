@@ -5,7 +5,7 @@ module Paraphrase
     let(:query) { UserSearch.new(:last_name => 'Snow', :first_name => 'Jon', :nickname => 'pretty') }
 
     describe ".paraphrase" do
-      it "caches the class being queried" do
+      it "stores the class being queried" do
         UserSearch.source.should eq User
       end
 
@@ -17,6 +17,11 @@ module Paraphrase
         UserSearch.paraphrases User, :as => :accounts
 
         Paraphrase.mappings[:accounts].should_not be_nil
+      end
+
+      it "can accept the name of a class" do
+        UserSearch.paraphrases :User
+        UserSearch.source.should eq User
       end
     end
 

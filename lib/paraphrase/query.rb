@@ -12,6 +12,7 @@ module Paraphrase
     end
 
     def self.paraphrases(klass, options = {})
+      klass = Object.const_get(klass) unless klass.is_a?(Class)
       @source = klass
 
       store_name = options[:as] ? options[:as] : klass.to_s.to_sym
