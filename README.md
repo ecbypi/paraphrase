@@ -124,7 +124,7 @@ end
 Poast.paraphrase(:pub_date => '2010-10-30') # => []
 ```
 
-## Thoughts on the future
+### Thoughts on the future
 
 1. Smooth out preprocess syntax/reconsider its usefulness.
 2. Enable requiring a subset of a compound key.
