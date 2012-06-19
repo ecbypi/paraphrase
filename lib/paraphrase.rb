@@ -33,3 +33,5 @@ module Paraphrase
     mappings[name].new(params)
   end
 end
+
+require 'paraphrase/rails' if defined?(Rails)
