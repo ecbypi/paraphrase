@@ -1,6 +1,7 @@
 # paraphrase
 
-paraphrase is a DSL to map one or multiple request params to model scopes.
+paraphrase provides a way to map one or multiple request params to model
+scopes.
 
 paraphrase was designed and geared towards building a query-based public API
 where you may want to require certain parameters to prevent consumers from
