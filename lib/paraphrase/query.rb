@@ -1,46 +1,43 @@
-require 'paraphrase/scope'
+require 'active_support/core_ext/class/attribute_accessors'
+require 'active_support/core_ext/class/attribute'
+require 'active_model/naming'
 
 module Paraphrase
   class Query
+    extend ActiveModel::Naming
 
-    class << self
-      attr_reader :source
-    end
+    cattr_reader :scopes, :source
+    @@scopes = []
 
-    def self.scopes
-      @scopes ||= {}
-    end
+    def self.paraphrases(klass)
+      if !klass.is_a?(Class)
+        klass = Object.const_get(klass.to_s.classify)
+      end
 
-    def self.paraphrases(klass, options = {})
-      klass = Object.const_get(klass) unless klass.is_a?(Class)
-      @source = klass
+      @@source = klass.scoped
 
-      store_name = options[:as] ? options[:as] : klass.to_s.to_sym
-      Paraphrase[store_name] ||= self
+      Paraphrase.add(klass.name, self)
     end
 
     def self.scope(name, options)
-      scopes[name] = options
+      @@scopes << ScopeMapping.new(name, options)
     end
 
     def initialize(params = {})
-      @scopes = self.class.scopes.map { |name, options| Scope.new(name, options, params) }
+      keys = scopes.map(&:keys)
+      @params = params.dup
+      @params.select! { |key, value| keys.include?(key) }
+      @params.freeze
+
+      @errors = ActiveModel::Errors.new(self)
     end
 
     def results
-      @results ||= if scopes_valid?
-                     results = @scopes.inject(self.class.source) do |results, scope|
-                       scope.chain(results)
-                     end
-
-                     results.to_a
-                   else
-                     []
-                   end
-    end
-
-    def scopes_valid?
-      @scopes.select { |scope| scope.required? }.map(&:valid?).all?
+      scopes.inject(source) do |query, scope|
+        scope.chain(self, @params, query)
+      end
     end
   end
 end
+
+require 'paraphrase/scope_mapping'

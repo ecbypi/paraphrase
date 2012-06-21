@@ -2,58 +2,25 @@ require 'spec_helper'
 
 module Paraphrase
   describe Query do
-    let(:query) { UserSearch.new(:last_name => 'Snow', :first_name => 'Jon', :nickname => 'pretty') }
 
-    describe ".paraphrase" do
+    describe ".paraphrases" do
       it "stores the class being queried" do
-        UserSearch.source.should eq User
+        UserSearch.paraphrases :user
+        UserSearch.source.should eq User.scoped
       end
 
       it "registers the query in Paraphrase.querys" do
-        Paraphrase.mappings[:User].should_not be_nil
-      end
-
-      it "can specify alias for Paraphrase.querys" do
-        UserSearch.paraphrases User, :as => :accounts
-
-        Paraphrase.mappings[:accounts].should_not be_nil
-      end
-
-      it "can accept the name of a class" do
-        UserSearch.paraphrases :User
-        UserSearch.source.should eq User
+        Paraphrase.mapping(:user).should eq UserSearch
       end
     end
 
-    describe ".key" do
-      it "adds information to :scope_keys" do
+    describe ".scope" do
+      it "adds information to Query.scopes" do
+        UserSearch.instance_eval do
+          scope :name_like, :key => :name
+        end
+
         UserSearch.scopes.should_not be_empty
-      end
-    end
-
-    describe "#results" do
-      it "applies scopes to source preserving order of keys" do
-        User.should_receive(:name_like).with('Jon Snow')
-        query.results
-      end
-
-      it "caches the result" do
-        query.results
-        User.should_not_receive(:name_like)
-        query.results
-      end
-
-      it "does not apply scopes if value is not present" do
-        User.should_not_receive(:title_like)
-        query.results
-      end
-
-      it "fills in results attribute" do
-        query.results.should_not be_nil
-      end
-
-      it "returns empty array if required attribute is nil" do
-        UserSearch.new.results.should eq []
       end
     end
   end

@@ -1,37 +1,36 @@
-require 'paraphrase/version'
-require 'paraphrase/errors'
-require 'paraphrase/query'
-require 'paraphrase/syntax'
+require 'active_support/core_ext/module/attribute_accessors'
+require 'active_support/core_ext/hash/indifferent_access'
+require 'active_support/core_ext/string/inflections'
 
 module Paraphrase
 
-  class << self
-    attr_writer :mapping_class
-  end
+  @@mappings = {}.with_indifferent_access
 
-  self.mapping_class = Query
-
-  def self.mappings
-    @mappings ||= {}
+  def self.mapping(name)
+    @@mappings[name]
   end
 
   def self.register(name, &block)
-    raise DuplicateMappingError if mappings[name]
-    mappings[name] = Class.new(@mapping_class, &block)
+    klass = Class.new(Query, &block)
+    klass.paraphrases(name.to_s.classify)
   end
 
-  def self.[](name)
-    mappings[name]
-  end
+  def self.add(name, klass)
+    name = name.to_s.underscore
 
-  def self.[]=(name, klass)
-    raise DuplicateMappingError if mappings[name]
-    mappings[name] = klass
+    if @@mappings[name]
+      raise DuplicateMappingError, "#{name.classify} has already been added"
+    end
+
+    @@mappings[name] = klass
   end
 
   def self.query(name, params)
-    mappings[name].new(params)
+    @@mappings[name].new(params)
   end
 end
 
+require 'paraphrase/errors'
+require 'paraphrase/query'
+require 'paraphrase/syntax'
 require 'paraphrase/rails' if defined?(Rails)

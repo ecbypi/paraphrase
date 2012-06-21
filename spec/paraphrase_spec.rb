@@ -2,42 +2,32 @@ require 'spec_helper'
 
 describe Paraphrase do
 
-  before(:all) { Paraphrase.register(:user) {} }
-
-  describe ".mapping_class=" do
-
-    after :all do
-      Paraphrase.mapping_class = Paraphrase::Query
-    end
-
-    it "can configure the mapping class" do
-      class MyClass; end
-      Paraphrase.mapping_class = MyClass
-      Paraphrase.register(:my_class) {}
-
-      Paraphrase.mappings[:my_class].superclass.should eq MyClass
-    end
-  end
-
   describe ".register" do
-    it "adds a mapping of params to scopes to .mappings" do
-      Paraphrase.mappings[:user].should_not be_nil
+    it "a sublcass of Paraphrase::Query to @@mappings" do
+      Paraphrase.register(:foobar) {}
+      Paraphrase.mapping(:foobar).should_not be_nil
+    end
+
+    it "adds the source to the new subclass" do
+      Paraphrase.mapping(:foobar).source.should eq Foobar.scoped
     end
 
     it "raises an error if mappings for a class are added twice" do
-      expect { Paraphrase.register(:user) {} }.to raise_error Paraphrase::DuplicateMappingError
-    end
-  end
-
-  describe ".[]" do
-    it "is a shortcut to .mappings" do
-      Paraphrase[:user].should eq Paraphrase.mappings[:user]
+      expect { Paraphrase.register(:foobar) {} }.to raise_error Paraphrase::DuplicateMappingError
     end
   end
 
   describe ".query" do
-    it "instantiates a new :mapping_class" do
-      Paraphrase.query(:user, {}).should be_a Paraphrase::Query
+    it "instantiates a new Query class" do
+      Paraphrase.query(:foobar, {}).should be_a Paraphrase::Query
+    end
+  end
+
+  describe ".add" do
+    it "adds class to mapping with specified name" do
+      klass = Class.new(Paraphrase::Query)
+      Paraphrase.add(:baz, klass)
+      Paraphrase.mapping(:baz).should eq klass
     end
   end
 end
