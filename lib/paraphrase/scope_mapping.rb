@@ -25,7 +25,7 @@ module Paraphrase
 
     # Checks if scope is required for query
     def required?
-      !options[:required].nil?
+      !options[:require].nil?
     end
 
 

@@ -26,7 +26,7 @@ module Paraphrase
       it "adds errors to query object if missing and required" do
         errors = double('errors')
         query.stub(:errors).and_return(errors)
-        required_mapping = ScopeMapping.new :name_like, :key => :name, :required => true
+        required_mapping = ScopeMapping.new :name_like, :key => :name, :require => true
 
         errors.should_receive(:add)
         required_mapping.chain(query, {}, Account)

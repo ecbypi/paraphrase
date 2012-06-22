@@ -105,13 +105,13 @@ class Post < ActiveRecord::Base
 end
 ```
 
-If a key is required, pass `:required => true` to the options. This will
+If a key is required, pass `:require => true` to the options. This will
 return an empty results set if value for that key is missing.
 
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    scope :by_author, :key => :author, :required => true
+    scope :by_author, :key => :author, :require => true
     scope :published_after, :key => :pub_date
   end
 end

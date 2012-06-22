@@ -40,7 +40,7 @@ module Paraphrase
     describe "#results" do
       before :all do
         UserSearch.instance_eval do
-          scope :title_like, :key => :title, :required => true
+          scope :title_like, :key => :title, :require => true
         end
       end
 
