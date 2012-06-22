@@ -28,11 +28,8 @@ $ gem install paraphrase
 
 ## Usage
 
-paraphrase aims to be as flexible as possible for your needs. The only
-requirement is a class with chainable methods where the result responds to
-`:to_a`. You can use it:
-
-* From within an `ActiveRecord` subclass:
+paraphrase aims to be as flexible as possible for your needs.
+* From within an `ActiveRecord::Base` subclass:
 
 ```ruby
 class Post < ActiveRecord::Base
@@ -52,7 +49,7 @@ end
 # config/initializers/paraphrase.rb
 
 Paraphrase.configure do |mappings|
-  mappings.register :Post do
+  mappings.register :post do
     paraphrases Post
     scope :by_user, :key => :author
   end
@@ -82,10 +79,10 @@ class PostsController < ApplicationController
     @posts = Post.paraphrase(params)
 
     # Or
-    # @posts = Paraphrase.query(:Post, params)
+    # @posts = Paraphrase.query(:post, params)
 
     # If you created a subclass
-    # @posts = PostParaphrase.new(params)
+    # @posts = PostQuery.new(params)
 
     respond_with(@posts)
   end
@@ -95,13 +92,11 @@ end
 In any of these contexts, the `:key` option of the `:scope` method registers
 attribute(s) to extract from the params supplied and what scope to pass them
 to. An array of keys can be supplied to pass multiple attributes to a scope.
-Additionally, there is a `:preprocess` option to prepare values for the scope
-to be called.
 
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    scope :by_user, :key => [:first_name, :last_name], :preprocess => lambda { |first, last| [first, last].join(' ') }
+    scope :by_user, :key => [:first_name, :last_name]
   end
 
   def self.by_user(name)
@@ -110,8 +105,8 @@ class Post < ActiveRecord::Base
 end
 ```
 
-If a key is required, passed `:required => true` to the options. This will
-return an empty results set
+If a key is required, pass `:required => true` to the options. This will
+return an empty results set if value for that key is missing.
 
 ```ruby
 class Post < ActiveRecord::Base
@@ -121,12 +116,19 @@ class Post < ActiveRecord::Base
   end
 end
 
-Poast.paraphrase(:pub_date => '2010-10-30') # => []
+Post.paraphrase(:pub_date => '2010-10-30') # => []
 ```
 
-### Thoughts on the future
+## Plans
 
-1. Smooth out preprocess syntax/reconsider its usefulness.
-2. Enable requiring a subset of a compound key.
-3. Support nested hashes in params.
-4. Better sort how keys in `Paraphrase.mappings` are set.
+* Enable requiring a subset of a compound key.
+
+```ruby
+scope :by_author, :key => [:first_name, :last_name], :require => :first_name
+```
+
+* Support nested hashes in params.
+
+```ruby
+scope :by_author, :key => { :author => [:first_name, :last_name] }
+```
