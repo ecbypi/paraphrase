@@ -6,9 +6,6 @@ module Paraphrase
       ScopeMapping.new :name_like, :key => :name
     end
 
-    class Account < ActiveRecord::Base
-    end
-
     it "removes keys from options" do
       scope_mapping.options.should_not have_key :key
     end
