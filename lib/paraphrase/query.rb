@@ -42,7 +42,7 @@ module Paraphrase
     #
     # @see ScopeMapping#initialize
     def self.scope(name, options)
-      if @@scopes.map(&:name).include?(name)
+      if @@scopes.map(&:method_name).include?(name)
         raise DuplicateScopeError, "scope :#{name} has already been added"
       end
 
@@ -54,7 +54,7 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     def initialize(params = {})
-      keys = scopes.map(&:keys).flatten
+      keys = scopes.map(&:param_keys).flatten
       @params = params.dup
       @params.select! { |key, value| keys.include?(key) }
       @params.freeze
