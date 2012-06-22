@@ -11,10 +11,10 @@ module Paraphrase
     attr_reader :param_keys, :method_name, :options
 
 
-    # @param [Symbol] name name of the scope method
+    # @param [Symbol] name name of the scope
     # @param [Hash] options options to configure {ScopeMapping ScopeMapping} instance
-    # @option options [Symbol, Array<Symbol>] :key key(s) to extract from params to send to scope method
-    # @option options [true] :required lists a scope as required
+    # @option options [Symbol, Array<Symbol>] :key param key(s) to extract values from
+    # @option options [true] :require lists scope as required
     def initialize(name, options)
       @method_name = name
       @param_keys = [options.delete(:key)].flatten
@@ -29,10 +29,10 @@ module Paraphrase
     end
 
 
-    # Send scope method {#method_name} to `chain`, extracting arguments from
-    # `params`.  If arguments are missing for any of the {#param_keys}, return
-    # the `chain` unmodified. If the {ScopeMapping scope} is required, errors
-    # are added to the {Query} instance as well.
+    # Sends {#method_name} to `chain`, extracting arguments from `params`.  If
+    # values are missing for any {#param_keys}, return the `chain` unmodified.
+    # If {#required? required}, errors are added to the {Query} instance as
+    # well.
     #
     # @param [Query] query {Query} instance applying the scope
     # @param [Hash] params hash of query parameters
