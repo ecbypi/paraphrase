@@ -14,6 +14,13 @@ module Paraphrase
     cattr_reader :scopes, :source
     @@scopes = []
 
+    # @!attribute [r] errors
+    #   @return [ActiveModel::Errors] errors from determining results
+    #
+    # @!attribute [r] params
+    #   @return [Hash] filters parameters based on keys defined in scopes
+    attr_reader :errors, :params
+
     # Specify the ActiveRecord model to use as the source for queries
     #
     # @param [String, Symbol] klass name of the class to use
@@ -32,6 +39,10 @@ module Paraphrase
     #
     # @see ScopeMapping#initialize
     def self.scope(name, options)
+      if @@scopes.map(&:name).include?(name)
+        raise DuplicateScopeError, "scope :#{name} has already been added"
+      end
+
       @@scopes << ScopeMapping.new(name, options)
     end
 
@@ -39,7 +50,7 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     def initialize(params = {})
-      keys = scopes.map(&:keys)
+      keys = scopes.map(&:keys).flatten
       @params = params.dup
       @params.select! { |key, value| keys.include?(key) }
       @params.freeze
@@ -53,9 +64,11 @@ module Paraphrase
     #
     # @return [ActiveRecord::Relation, Array]
     def results
-      scopes.inject(source) do |query, scope|
+      results ||= scopes.inject(source) do |query, scope|
         scope.chain(self, @params, query)
       end
+
+      @results = @errors.any? ? [] : results
     end
   end
 end

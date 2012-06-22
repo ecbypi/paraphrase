@@ -1,4 +1,4 @@
 module Paraphrase
   class DuplicateMappingError < StandardError; end
-  class SourceMissingError < StandardError; end
+  class DuplicateScopeError < StandardError; end
 end
