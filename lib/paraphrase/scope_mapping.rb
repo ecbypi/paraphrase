@@ -10,6 +10,7 @@ module Paraphrase
     #   @return [Hash] configuration options
     attr_reader :keys, :name, :options
 
+
     # @param [Symbol] name name of the scope method
     # @param [Hash] options options to configure {ScopeMapping ScopeMapping} instance
     # @option options [Symbol, Array<Symbol>] :key key(s) to extract from params to send to scope method
@@ -21,18 +22,17 @@ module Paraphrase
       @options = options.freeze
     end
 
+
     # Checks if scope is required for query
     def required?
       !options[:required].nil?
     end
 
-    # Send scope method to chain, extracting arguments from params
-    #
-    # If any arguments are missing for any of the keys, return unmodified
-    # ActiveRecord::Relation.
-    #
-    # If scope is required, add an error to {Query} instance and return
-    # relation unmodified.
+
+    # Send scope method {#name} to `chain`, extracting arguments from `params`.
+    # If arguments are missing for any of the {#keys}, return the `chain`
+    # unmodified. If the {ScopeMapping scope} is required, errors are added to
+    # the {Query} instance as well.
     #
     # @param [Query] query {Query} instance applying the scope
     # @param [Hash] params hash of query parameters

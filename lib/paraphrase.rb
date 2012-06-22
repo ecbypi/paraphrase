@@ -14,6 +14,7 @@ module Paraphrase
     @@mappings[name]
   end
 
+
   # Add a new subclass of Paraprhase::Query. The provided block is evaluated in
   # the context of a Query subclass to define scope mappings.
   #
@@ -23,6 +24,7 @@ module Paraphrase
     klass = Class.new(Query, &block)
     klass.paraphrases(name.to_s.classify)
   end
+
 
   # Register a subclass of Paraphrase::Query. Useful for manually subclassing
   # Paraphrase::Query to add custom functionality.
@@ -38,6 +40,7 @@ module Paraphrase
 
     @@mappings[name] = klass
   end
+
 
   # Instantiate a new Query subclass using supplied params
   #
