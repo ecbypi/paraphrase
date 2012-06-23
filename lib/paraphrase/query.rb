@@ -1,5 +1,6 @@
 require 'active_support/core_ext/class/attribute_accessors'
 require 'active_support/core_ext/class/attribute'
+require 'active_support/core_ext/module/delegation'
 require 'active_model/naming'
 
 module Paraphrase
@@ -13,6 +14,10 @@ module Paraphrase
     #   @return [ActiveRecord::Relation] source to apply scopes to
     cattr_reader :scopes, :source
     @@scopes = []
+
+
+    # Delegate enumerable methods to results
+    delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :results
 
 
     # @!attribute [r] errors
