@@ -2,6 +2,16 @@ require 'spec_helper'
 
 describe Paraphrase do
 
+  describe ".configure" do
+    it "is a convenience method for configuring multiple query classes" do
+      Paraphrase.configure do |mapping|
+        mapping.register(:person) {}
+      end
+
+      Paraphrase.mapping(:person).should_not be_nil
+    end
+  end
+
   describe ".register" do
     it "a sublcass of Paraphrase::Query to @@mappings" do
       Paraphrase.register(:foobar) {}

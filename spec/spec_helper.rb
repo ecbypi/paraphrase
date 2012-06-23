@@ -14,7 +14,11 @@ ActiveRecord::Base.silence do
     create_table(:users, :force => true) {}
     create_table(:accounts, :force => true) {}
     create_table(:foobars, :force => true) {}
+    create_table(:people, :force => true) {}
   end
+end
+
+class Person < ActiveRecord::Base
 end
 
 class Foobar < ActiveRecord::Base

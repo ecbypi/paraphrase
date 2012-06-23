@@ -6,6 +6,13 @@ module Paraphrase
 
   @@mappings = {}.with_indifferent_access
 
+  # Allows for configuring multiple {Query} classes in a single block. Useful
+  # in an initializer.
+  def self.configure(&block)
+    yield self
+  end
+
+
   # Retreive a registered Query subclass.
   #
   # @param [String, Symbol] name of the class underscored
