@@ -6,11 +6,14 @@ Gem::Specification.new do |gem|
   gem.name          = "paraphrase"
   gem.version       = Paraphrase::VERSION
   gem.summary       = %q{Map param keys to class scopes}
-  gem.description   = %q{Map param keys to class scopes}
+  gem.description   = %q{
+                        Build customizable classes to determine which scope
+                        methods to call based on supplied parameters.
+                      }
   gem.license       = "MIT"
   gem.authors       = ["Eduardo Gutierrez"]
   gem.email         = "edd_d@mit.edu"
-  gem.homepage      = "https://rubygems.org/gems/paraphrase"
+  gem.homepage      = "https://github.com/ecbypi/paraphrase"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
