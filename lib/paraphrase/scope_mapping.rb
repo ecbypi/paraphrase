@@ -37,12 +37,14 @@ module Paraphrase
 
 
     # True if scope is required for query
+    # @param [Symbol, String] key param key being checked
     def required?(key)
       required_keys.include?(key)
     end
 
 
     # True if nil param values can be passed to scope
+    # @see #required?
     def whitelisted?(key)
       whitelisted_keys.include?(key)
     end
