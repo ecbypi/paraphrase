@@ -1,0 +1,11 @@
+0.3.0 / 7-5-2012
+
+* Allow nil values to be passed to scoped using :allow_nil option.
+* Require/whitelist individual keys of a compound key.
+* Update Paraphrase::Syntax.register_mapping to update an existing mapping to
+avoid errors when a model class is reloaded during development.
+
+0.2.0 / 6-22-2012
+
+* Initial release
+
