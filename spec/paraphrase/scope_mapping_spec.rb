@@ -40,5 +40,9 @@ module Paraphrase
       Account.should_receive(:name_like).with(nil, 'Lannister')
       compound_mapping.chain(query, { :last_name => 'Lannister' }, Account)
     end
+
+    it "whitelists the the non-required keys of a compound key" do
+      compound_mapping.whitelisted?(:first_name).should be_true
+    end
   end
 end
