@@ -1,6 +1,7 @@
 require 'active_support/core_ext/class/attribute_accessors'
 require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/module/delegation'
+require 'active_support/hash_with_indifferent_access'
 require 'active_model/naming'
 
 module Paraphrase
@@ -24,7 +25,7 @@ module Paraphrase
     #   @return [ActiveModel::Errors] errors from determining results
     #
     # @!attribute [r] params
-    #   @return [Hash] filters parameters based on keys defined in scopes
+    #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
     attr_reader :errors, :params
 
 
@@ -59,8 +60,8 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     def initialize(params = {})
-      keys = scopes.map(&:param_keys).flatten
-      @params = params.dup
+      keys = scopes.map(&:param_keys).flatten.map(&:to_s)
+      @params = HashWithIndifferentAccess.new(params)
       @params.select! { |key, value| keys.include?(key) }
       @params.freeze
 

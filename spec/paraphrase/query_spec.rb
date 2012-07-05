@@ -29,11 +29,14 @@ module Paraphrase
     end
 
     describe "#initialize" do
+      let(:query) { UserSearch.new(:name => 'Tyrion Lannister', :nickname => 'Half Man') }
       it "filters out params not specified in scopes" do
-        query = UserSearch.new(:name => 'Tyrion Lannister', :nickname => 'Half Man')
-
         query.params.should_not have_key :nickname
         query.params.should have_key :name
+      end
+
+      it "sets up params with indifferent access" do
+        query.params.should have_key 'name'
       end
     end
 
