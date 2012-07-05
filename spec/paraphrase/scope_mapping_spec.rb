@@ -5,14 +5,13 @@ module Paraphrase
     let(:scope_mapping) do
       ScopeMapping.new :name_like, :key => :name
     end
+    let(:query) { double('query') }
 
     it "removes keys from options" do
       scope_mapping.options.should_not have_key :key
     end
 
     describe "#chain" do
-      let(:query) { double('query') }
-
       it "applies scope method to query object with values from params hash" do
         Account.should_receive(:name_like).with('Jon Snow')
         scope_mapping.chain(query, { :name => 'Jon Snow' }, Account)
@@ -38,6 +37,13 @@ module Paraphrase
         Account.should_receive(:name_like).with(nil)
         whitelisted_mapping.chain(query, {}, Account)
       end
+    end
+
+    it "can require a subset of a compound key" do
+      mapping = ScopeMapping.new :name_like, :key => [:first_name, :last_name], :require => :last_name
+
+      Account.should_receive(:name_like).with(nil, 'Lannister')
+      mapping.chain(query, { :last_name => 'Lannister' }, Account)
     end
   end
 end
