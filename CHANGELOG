@@ -1,3 +1,9 @@
+0.3.2 / 7-5-2012
+
+* Cache Query#results
+* Setup Query#method_missing to proxy to Query#results
+* Setup Query#respond_to? to check Query#results
+
 0.3.1 / 7-5-2012
 
 * Fix for rails 3.0
