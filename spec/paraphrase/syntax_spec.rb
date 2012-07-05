@@ -7,6 +7,15 @@ module Paraphrase
         ::Account.register_mapping {}
         Paraphrase.mapping(:account).should_not be_nil
       end
+
+      it "updates scopes if already registered" do
+        ::Account.register_mapping do
+          scope :name_like, :key => :name
+        end
+
+        mapping = Paraphrase.mapping(:account)
+        mapping.scopes.should_not be_empty
+      end
     end
 
     describe ".paraphrase" do

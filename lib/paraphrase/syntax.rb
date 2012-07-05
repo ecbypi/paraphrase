@@ -1,11 +1,18 @@
 module Paraphrase
   module Syntax
 
-    # Register a {Query} class mapped to `self`.
+    # Register a {Query} class mapped to `self`. If the mapping has already
+    # been registered, calling again will clear existing scopes and evaluate
+    # the block.
     #
     # @param [Proc] &block block to define scope mappings
     def register_mapping(&block)
-      Paraphrase.register(self.name, &block)
+      if mapping = Paraphrase.mapping(self.name.underscore)
+        mapping.scopes.clear
+        mapping.instance_eval(&block)
+      else
+        Paraphrase.register(self.name, &block)
+      end
     end
 
 
