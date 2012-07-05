@@ -23,9 +23,15 @@ module Paraphrase
     end
 
 
-    # Checks if scope is required for query
+    # True if scope is required for query
     def required?
       !options[:require].nil?
+    end
+
+
+    # True if nil param values can be passed to scope
+    def whitelisted?
+      !options[:allow_nil].nil?
     end
 
 
@@ -39,17 +45,18 @@ module Paraphrase
     # @param [ActiveRecord::Relation, ActiveRecord::Base] chain current model scope
     # @return [ActiveRecord::Relation]
     def chain(query, params, chain)
-      inputs = param_keys.map { |key| params[key] }
+      inputs = param_keys.map do |key|
+        input = params[key]
 
-      if inputs.include?(nil)
-        param_keys.each do |key|
-          query.errors.add(key, 'is required')
-        end if required?
+        if input.nil? && ( required? || !whitelisted? )
+          query.errors.add(key, 'is required') if required?
+          break []
+        end
 
-        chain
-      else
-        chain.send(method_name, *inputs)
+        input
       end
+
+      inputs.empty? ? chain : chain.send(method_name, *inputs)
     end
   end
 end

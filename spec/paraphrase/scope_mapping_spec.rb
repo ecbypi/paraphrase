@@ -31,6 +31,13 @@ module Paraphrase
         errors.should_receive(:add)
         required_mapping.chain(query, {}, Account)
       end
+
+      it "passes through nil values if scope has been whitelisted" do
+        whitelisted_mapping = ScopeMapping.new :name_like, :key => :name, :allow_nil => true
+
+        Account.should_receive(:name_like).with(nil)
+        whitelisted_mapping.chain(query, {}, Account)
+      end
     end
   end
 end
