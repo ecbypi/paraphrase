@@ -73,11 +73,13 @@ module Paraphrase
     #
     # @return [ActiveRecord::Relation, Array]
     def results
-      results ||= scopes.inject(source) do |query, scope|
-        scope.chain(self, @params, query)
-      end
+      @results ||= begin
+                     results = scopes.inject(source) do |query, scope|
+                       scope.chain(self, @params, query)
+                     end
 
-      @results = @errors.any? ? [] : results
+                     @errors.any? ? [] : results
+                   end
     end
   end
 end
