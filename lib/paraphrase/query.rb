@@ -81,6 +81,22 @@ module Paraphrase
                      @errors.any? ? [] : results
                    end
     end
+
+
+    def respond_to?(name)
+      super || results.respond_to?(name)
+    end
+
+    protected
+
+    def method_missing(name, *args, &block)
+      if results.respond_to?(name)
+        self.class.delegate name, :to => :results
+        results.send(name, *args, &block)
+      else
+        super
+      end
+    end
   end
 end
 
