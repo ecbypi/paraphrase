@@ -1,3 +1,7 @@
+0.3.1 / 7-5-2012
+
+* Fix for rails 3.0
+
 0.3.0 / 7-5-2012
 
 * Allow nil values to be passed to scoped using :allow_nil option.

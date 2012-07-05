@@ -3,10 +3,9 @@
 paraphrase provides a way to map one or multiple request params to model
 scopes.
 
-paraphrase was designed and geared towards building a query-based public API
-where you may want to require certain parameters to prevent consumers from
-scraping all your information or to mitigate the possibility of large,
-performance-intensive data-dumps.
+paraphrase is geared towards building a query-based public API where you may
+want to require certain parameters to prevent consumers from scraping all your
+information or to mitigate large, performance-intensive database queries.
 
 ## Installation
 
@@ -28,8 +27,12 @@ $ gem install paraphrase
 
 ## Usage
 
-paraphrase aims to be as flexible as possible for your needs.
-* From within an `ActiveRecord::Base` subclass:
+### Setup
+
+paraphrase aims to be as flexible as possible. `Query` classes can be created
+in the following ways:
+
+* Calling `register_mapping` in an `ActiveRecord::Base` subclass:
 
 ```ruby
 class Post < ActiveRecord::Base
@@ -43,7 +46,7 @@ class Post < ActiveRecord::Base
 end
 ```
 
-* In an initializer to register multiple mappings in one place:
+* A configuration block through `Paraphrase.configure`:
 
 ```ruby
 # config/initializers/paraphrase.rb
@@ -56,7 +59,7 @@ Paraphrase.configure do |mappings|
 end
 ```
 
-* By creating a subclass of `Paraphrase::Query`:
+* Subclassing `Paraphrase::Query`:
 
 ```ruby
 class PostQuery < Paraphrase::Query
@@ -66,16 +69,15 @@ class PostQuery < Paraphrase::Query
 end
 ```
 
-Then in a controller you can use it in any of the following ways:
+### Making a Query
+
+In your controller, call the relevant method based on your setup:
 
 ```ruby
 class PostsController < ApplicationController
   respond_to :html, :json
 
   def index
-    # Filters out relevant attributes
-    # and applies scopes relevant to each
-    # parameter
     @posts = Post.paraphrase(params)
 
     # Or
@@ -89,43 +91,57 @@ class PostsController < ApplicationController
 end
 ```
 
+### Configuring Scopes
+
 In any of these contexts, the `:key` option of the `:scope` method registers
-attribute(s) to extract from the params supplied and what scope to pass them
-to. An array of keys can be supplied to pass multiple attributes to a scope.
+attribute(s) to extract from the params supplied and what method to pass them
+to. An array of keys can be supplied to pass multiple arguments to a scope.
 
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
     scope :by_user, :key => [:first_name, :last_name]
+    scope :published_on, :key => :pub_date
   end
 
-  def self.by_user(name)
-    joins(:user).where(:user => { :name => name })
+  def self.by_user(first_name, last_name)
+    joins(:user).where(:user => { :first_name => first_name, :last_name => last_name })
+  end
+
+  def self.published_on(pub_date)
+    where(:published_on => pub_date)
   end
 end
 ```
 
-If a key is required, pass `:require => true` to the options. This will
-return an empty results set if value for that key is missing.
+If a scope is required for a query to be considered valid, pass `:require =>
+true` or `:require => [:array, :of, :keys]` to the options. If any values are
+missing for the scope, an empty result set will be returned. If a key is an
+array of attributes, you can specify a subset of the key to be required. The
+rest of the attributes will be allowed to be nil.
 
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    scope :by_author, :key => :author, :require => true
-    scope :published_after, :key => :pub_date
+    scope :published_on, :key => :pub_date, :require => true
+    scope :by_author, :key => [:first_name, :last_name], :require => :last_name # requires :last_name, whitelists :first_name
   end
 end
 
-Post.paraphrase(:pub_date => '2010-10-30') # => []
+Post.paraphrase.results # => []
 ```
 
-## Plans
-
-* Enable requiring a subset of a compound key.
+Alternatively, a scope can be whitelisted allowing nil values to be passed to the scope.
 
 ```ruby
-scope :by_author, :key => [:first_name, :last_name], :require => :first_name
+class Post < ActiveRecord::Base
+  register_mapping do
+    scope :by_author, :key => [:first_name, :last_name], :allow_nil => :first_name # :first_name does not need to be specified
+  end
+end
 ```
+
+## Plans / Thoughts for the Future
 
 * Support nested hashes in params.
 
