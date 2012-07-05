@@ -17,7 +17,7 @@ module Paraphrase
     # @option options [true] :require lists scope as required
     def initialize(name, options)
       @method_name = name
-      @param_keys = [options.delete(:key)].flatten
+      @param_keys = Array(options.delete(:key))
 
       @options = options.freeze
     end
