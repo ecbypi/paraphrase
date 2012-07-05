@@ -2,7 +2,6 @@ require 'active_support/core_ext/class/attribute_accessors'
 require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/module/delegation'
 require 'active_model/naming'
-require 'active_model/errors'
 
 module Paraphrase
   class Query
