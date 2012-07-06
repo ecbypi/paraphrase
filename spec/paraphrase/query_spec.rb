@@ -6,7 +6,7 @@ module Paraphrase
     describe ".paraphrases" do
       it "stores the class being queried" do
         UserSearch.paraphrases :user
-        UserSearch.source.should eq User.scoped
+        UserSearch.source.should eq User
       end
 
       it "registers the query in Paraphrase.querys" do

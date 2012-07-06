@@ -19,7 +19,7 @@ describe Paraphrase do
     end
 
     it "adds the source to the new subclass" do
-      Paraphrase.mapping(:foobar).source.should eq Foobar.scoped
+      Paraphrase.mapping(:foobar).source.should eq Foobar
     end
 
     it "raises an error if mappings for a class are added twice" do

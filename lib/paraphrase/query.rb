@@ -38,7 +38,7 @@ module Paraphrase
         klass = Object.const_get(klass.to_s.classify)
       end
 
-      @@source = klass.scoped
+      @@source = klass
 
       Paraphrase.add(klass.name, self)
     end
@@ -75,7 +75,7 @@ module Paraphrase
     # @return [ActiveRecord::Relation, Array]
     def results
       @results ||= begin
-                     results = scopes.inject(source) do |query, scope|
+                     results = scopes.inject(source.scoped) do |query, scope|
                        scope.chain(self, @params, query)
                      end
 
