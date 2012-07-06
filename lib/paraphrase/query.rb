@@ -1,4 +1,3 @@
-require 'active_support/core_ext/class/attribute_accessors'
 require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/string/inflections'
@@ -14,8 +13,7 @@ module Paraphrase
     #
     # @!attribute [r] source
     #   @return [ActiveRecord::Relation] source to apply scopes to
-    cattr_reader :scopes, :source
-    @@scopes = []
+    class_attribute :scopes, :source, :instance_writer => false
 
 
     # Delegate enumerable methods to results
@@ -28,6 +26,12 @@ module Paraphrase
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
     attr_reader :errors, :params
+
+
+    # Set `scopes` on inheritance to ensure they're unique per subclass
+    def self.inherited(klass)
+      klass.scopes = []
+    end
 
 
     # Specify the ActiveRecord model to use as the source for queries
@@ -49,11 +53,11 @@ module Paraphrase
     #
     # @see ScopeMapping#initialize
     def self.scope(name, options)
-      if @@scopes.map(&:method_name).include?(name)
+      if scopes.map(&:method_name).include?(name)
         raise DuplicateScopeError, "scope :#{name} has already been added"
       end
 
-      @@scopes << ScopeMapping.new(name, options)
+      scopes << ScopeMapping.new(name, options)
     end
 
 
