@@ -1,6 +1,7 @@
 require 'active_support/core_ext/class/attribute_accessors'
 require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/module/delegation'
+require 'active_support/core_ext/string/inflections'
 require 'active_support/hash_with_indifferent_access'
 require 'active_model/naming'
 
