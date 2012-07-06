@@ -1,18 +1,21 @@
 module Paraphrase
   module Syntax
 
+    def self.extended(klass)
+      klass.instance_eval do
+        class_attribute :paraphraser, :instance_writer => false, :instance_reader => false
+      end
+    end
+
     # Register a {Query} class mapped to `self`. If the mapping has already
     # been registered, calling again will clear existing scopes and evaluate
     # the block.
     #
     # @param [Proc] &block block to define scope mappings
     def register_mapping(&block)
-      if mapping = Paraphrase.mapping(self.name.underscore)
-        mapping.scopes.clear
-        mapping.instance_eval(&block)
-      else
-        Paraphrase.register(self.name, &block)
-      end
+      klass = Class.new(Query, &block)
+      klass.source = self
+      self.paraphraser = klass
     end
 
 
@@ -20,7 +23,7 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     def paraphrase(params)
-      Paraphrase.query(self.name.underscore, params)
+      self.paraphraser.new(params)
     end
   end
 end

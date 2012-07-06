@@ -43,9 +43,7 @@ module Paraphrase
         klass = Object.const_get(klass.to_s.classify)
       end
 
-      @@source = klass
-
-      Paraphrase.add(klass.name, self)
+      self.source = klass
     end
 
 
