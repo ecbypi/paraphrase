@@ -29,8 +29,7 @@ $ gem install paraphrase
 
 ### Setup
 
-paraphrase aims to be as flexible as possible. `Query` classes can be created
-in the following ways:
+`Paraphrase::Query` classes can be created in the following ways:
 
 * Calling `register_mapping` in an `ActiveRecord::Base` subclass:
 
@@ -46,23 +45,12 @@ class Post < ActiveRecord::Base
 end
 ```
 
-* A configuration block through `Paraphrase.configure`:
-
-```ruby
-# config/initializers/paraphrase.rb
-
-Paraphrase.configure do |mappings|
-  mappings.register :post do
-    paraphrases Post
-    scope :by_user, :key => :author
-  end
-end
-```
-
 * Subclassing `Paraphrase::Query`:
 
 ```ruby
 class PostQuery < Paraphrase::Query
+  # takes the constant or a symbol/string that can be classified
+  # into a constant name
   paraphrases Post
 
   scope :by_user, :key => :author
@@ -79,11 +67,7 @@ class PostsController < ApplicationController
 
   def index
     @posts = Post.paraphrase(params)
-
-    # Or
-    # @posts = Paraphrase.query(:post, params)
-
-    # If you created a subclass
+    # Or if you created a subclass
     # @posts = PostQuery.new(params)
 
     respond_with(@posts)

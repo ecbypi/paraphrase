@@ -1,3 +1,10 @@
+0.4.0 / 7-6-2012
+
+* Setup Query#params to be HashWithIndifferentAccess.
+* Gut out Paraphrase module methods. These were for use cases I had planned
+for but have yet to encounter.
+* Model's query class is now stored on the model itself.
+
 0.3.2 / 7-5-2012
 
 * Cache Query#results
