@@ -42,7 +42,7 @@ module Paraphrase
     end
 
     it "whitelists the the non-required keys of a compound key" do
-      compound_mapping.whitelisted?(:first_name).should be_true
+      compound_mapping.whitelist.include?(:first_name).should be_true
     end
   end
 end

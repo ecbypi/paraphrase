@@ -63,7 +63,7 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     def initialize(params = {})
-      keys = scopes.map(&:param_keys).flatten.map(&:to_s)
+      keys = scopes.map(&:keys).flatten.map(&:to_s)
       @params = HashWithIndifferentAccess.new(params)
       @params.select! { |key, value| keys.include?(key) }
       @params.freeze

@@ -1,6 +1,6 @@
 module Paraphrase
   class ScopeMapping
-    # @!attribute [r] param_keys
+    # @!attribute [r] keys
     #   @return [Array<Symbol>] param keys to extract
     #
     # @!attribute [r] method_name
@@ -12,9 +12,9 @@ module Paraphrase
     # @!attribute [r] required_keys
     #   @return [Array] keys required for query
     #
-    # @!attribute [r] whitelisted_keys
+    # @!attribute [r] whitelist_keys
     #   @return [Array] keys allowed to be nil
-    attr_reader :param_keys, :method_name, :options, :required_keys, :whitelisted_keys
+    attr_reader :keys, :method_name, :options, :required, :whitelist
 
 
     # @param [Symbol] name name of the scope
@@ -23,35 +23,21 @@ module Paraphrase
     # @option options [true] :require lists scope as required
     def initialize(name, options)
       @method_name = name
-      @param_keys = Array(options.delete(:key))
+      @keys = Array(options.delete(:key))
 
-      @required_keys = register_keys(options[:require])
-      @whitelisted_keys = register_keys(options[:allow_nil])
+      @required = register_keys(options[:require])
+      @whitelist = register_keys(options[:allow_nil])
 
-      if @whitelisted_keys.empty? && !@required_keys.empty?
-        @whitelisted_keys = @param_keys - @required_keys
+      if @whitelist.empty? && !@required.empty?
+        @whitelist = @keys - @required
       end
 
       @options = options.freeze
     end
 
 
-    # True if scope is required for query
-    # @param [Symbol, String] key param key being checked
-    def required?(key)
-      required_keys.include?(key)
-    end
-
-
-    # True if nil param values can be passed to scope
-    # @see #required?
-    def whitelisted?(key)
-      whitelisted_keys.include?(key)
-    end
-
-
     # Sends {#method_name} to `chain`, extracting arguments from `params`.  If
-    # values are missing for any {#param_keys}, return the `chain` unmodified.
+    # values are missing for any {#keys}, return the `chain` unmodified.
     # If {#required? required}, errors are added to the {Query} instance as
     # well.
     #
@@ -60,11 +46,11 @@ module Paraphrase
     # @param [ActiveRecord::Relation, ActiveRecord::Base] chain current model scope
     # @return [ActiveRecord::Relation]
     def chain(query, params, chain)
-      inputs = param_keys.map do |key|
+      inputs = keys.map do |key|
         input = params[key]
 
-        if input.nil? && ( required?(key) || !whitelisted?(key) )
-          query.errors.add(key, 'is required') if required?(key)
+        if input.nil? && ( required.include?(key) || !whitelist.include?(key) )
+          query.errors.add(key, 'is required') if required.include?(key)
           break []
         end
 
@@ -77,7 +63,7 @@ module Paraphrase
     private
 
     def register_keys(option)
-      option == true ? Array(param_keys) : Array(option)
+      option == true ? Array(keys) : Array(option)
     end
   end
 end
