@@ -36,7 +36,7 @@ $ gem install paraphrase
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    scope :by_user, :key => :author
+    map :by_user, :to => :author
   end
 
   def self.by_user(author_name)
@@ -53,7 +53,7 @@ class PostQuery < Paraphrase::Query
   # into a constant name
   paraphrases Post
 
-  scope :by_user, :key => :author
+  map :by_user, :to => :author
 end
 ```
 
@@ -75,17 +75,17 @@ class PostsController < ApplicationController
 end
 ```
 
-### Configuring Scopes
+### Configuring Mappings
 
-In any of these contexts, the `:key` option of the `:scope` method registers
+In any of these contexts, the `:to` option of the `:map` method registers
 attribute(s) to extract from the params supplied and what method to pass them
 to. An array of keys can be supplied to pass multiple arguments to a scope.
 
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    scope :by_user, :key => [:first_name, :last_name]
-    scope :published_on, :key => :pub_date
+    map :by_user, :to => [:first_name, :last_name]
+    map :published_on, :to => :pub_date
   end
 
   def self.by_user(first_name, last_name)
@@ -107,8 +107,8 @@ rest of the attributes will be allowed to be nil.
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    scope :published_on, :key => :pub_date, :require => true
-    scope :by_author, :key => [:first_name, :last_name], :require => :last_name # requires :last_name, whitelists :first_name
+    map :published_on, :to => :pub_date, :require => true
+    map :by_author, :to => [:first_name, :last_name], :require => :last_name # requires :last_name, whitelists :first_name
   end
 end
 
@@ -120,7 +120,7 @@ Alternatively, a scope can be whitelisted allowing nil values to be passed to th
 ```ruby
 class Post < ActiveRecord::Base
   register_mapping do
-    scope :by_author, :key => [:first_name, :last_name], :allow_nil => :first_name # :first_name does not need to be specified
+    map :by_author, :to => [:first_name, :last_name], :allow_nil => :first_name # :first_name does not need to be specified
   end
 end
 ```
@@ -130,5 +130,5 @@ end
 * Support nested hashes in params.
 
 ```ruby
-scope :by_author, :key => { :author => [:first_name, :last_name] }
+map :by_author, :to => { :author => [:first_name, :last_name] }
 ```

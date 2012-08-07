@@ -11,23 +11,23 @@ module Paraphrase
     end
 
     describe ".scope" do
-      it "adds information to Query.scopes" do
+      it "adds information to Query.mappings" do
         AccountSearch.instance_eval do
-          scope :name_like, :key => :name
+          map :name_like, :to => :name
         end
 
-        AccountSearch.scopes.should_not be_empty
+        AccountSearch.mappings.should_not be_empty
       end
 
       it "raises an error if a scope is added twice" do
-        expect { AccountSearch.instance_eval { scope :name_like, :key => :name } }.to raise_error Paraphrase::DuplicateScopeError
+        expect { AccountSearch.instance_eval { map :name_like, :to => :name } }.to raise_error Paraphrase::DuplicateScopeError
       end
     end
 
     describe "#initialize" do
       let(:query) { AccountSearch.new(:name => 'Tyrion Lannister', :nickname => 'Half Man') }
 
-      it "filters out params not specified in scopes" do
+      it "filters out params not specified in mappings" do
         query.params.should_not have_key :nickname
         query.params.should have_key :name
       end
@@ -40,7 +40,7 @@ module Paraphrase
     describe "#results" do
       before :all do
         AccountSearch.instance_eval do
-          scope :title_like, :key => :title, :require => true
+          map :title_like, :to => :title, :require => true
         end
       end
 

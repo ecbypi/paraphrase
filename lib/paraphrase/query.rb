@@ -8,12 +8,12 @@ module Paraphrase
   class Query
     extend ActiveModel::Naming
 
-    # @!attribute [r] scopes
-    #   @return [Array<ScopeMapping>] scopes for query
+    # @!attribute [r] mappings
+    #   @return [Array<ScopeMapping>] mappings for query
     #
     # @!attribute [r] source
     #   @return [ActiveRecord::Relation] source to apply scopes to
-    class_attribute :scopes, :source, :instance_writer => false
+    class_attribute :mappings, :source, :instance_writer => false
 
 
     # Delegate enumerable methods to results
@@ -24,13 +24,13 @@ module Paraphrase
     #   @return [ActiveModel::Errors] errors from determining results
     #
     # @!attribute [r] params
-    #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
+    #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in mappings
     attr_reader :errors, :params
 
 
-    # Set `scopes` on inheritance to ensure they're unique per subclass
+    # Set `mappings` on inheritance to ensure they're unique per subclass
     def self.inherited(klass)
-      klass.scopes = []
+      klass.mappings = []
     end
 
 
@@ -47,15 +47,15 @@ module Paraphrase
     end
 
 
-    # Add a {ScopeMapping} instance to {@@scopes .scopes}
+    # Add a {ScopeMapping} instance to {@@mappings .mappings}
     #
     # @see ScopeMapping#initialize
-    def self.scope(name, options)
-      if scopes.map(&:method_name).include?(name)
+    def self.map(name, options)
+      if mappings.map(&:method_name).include?(name)
         raise DuplicateScopeError, "scope :#{name} has already been added"
       end
 
-      scopes << ScopeMapping.new(name, options)
+      mappings << ScopeMapping.new(name, options)
     end
 
 
@@ -63,7 +63,7 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     def initialize(params = {})
-      keys = scopes.map(&:keys).flatten.map(&:to_s)
+      keys = mappings.map(&:keys).flatten.map(&:to_s)
       @params = HashWithIndifferentAccess.new(params)
       @params.select! { |key, value| keys.include?(key) }
       @params.freeze
@@ -72,14 +72,14 @@ module Paraphrase
     end
 
 
-    # Loops through {#scopes} and apply scope methods to {#source}. If values
+    # Loops through {#mappings} and apply scope methods to {#source}. If values
     # are missing for a required key, an empty array is returned.
     #
     # @return [ActiveRecord::Relation, Array]
     def results
       return @results if @results
 
-      results = scopes.inject(source.scoped) do |query, scope|
+      results = mappings.inject(source.scoped) do |query, scope|
         scope.chain(self, @params, query)
       end
 

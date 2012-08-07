@@ -2,8 +2,8 @@ require 'spec_helper'
 
 module Paraphrase
   describe ScopeMapping do
-    let(:mapping) { ScopeMapping.new(:name_like, :key => :name) }
-    let(:compound_mapping) { ScopeMapping.new(:name_like, :key => [:first_name, :last_name], :require => :last_name) }
+    let(:mapping) { ScopeMapping.new(:name_like, :to => :name) }
+    let(:compound_mapping) { ScopeMapping.new(:name_like, :to => [:first_name, :last_name], :require => :last_name) }
     let(:query) do
       query = double('query')
       query.stub(:errors).and_return(double('errors'))
@@ -22,14 +22,14 @@ module Paraphrase
       end
 
       it "adds errors to query object if missing and required" do
-        required_mapping = ScopeMapping.new(:name_like, :key => :name, :require => true)
+        required_mapping = ScopeMapping.new(:name_like, :to => :name, :require => true)
 
         query.errors.should_receive(:add)
         required_mapping.chain(query, {}, Account)
       end
 
       it "passes through nil values if scope has been whitelisted" do
-        mapping = ScopeMapping.new(:name_like, :key => :name, :allow_nil => true)
+        mapping = ScopeMapping.new(:name_like, :to => :name, :allow_nil => true)
 
         Account.should_receive(:name_like).with(nil)
         mapping.chain(query, {}, Account)

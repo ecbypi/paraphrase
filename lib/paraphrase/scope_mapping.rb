@@ -23,7 +23,7 @@ module Paraphrase
     # @option options [true] :require lists scope as required
     def initialize(name, options)
       @method_name = name
-      @keys = Array(options.delete(:key))
+      @keys = Array(options.delete(:to))
 
       @required = register_keys(options[:require])
       @whitelist = register_keys(options[:allow_nil])
