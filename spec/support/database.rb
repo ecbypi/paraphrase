@@ -29,6 +29,6 @@ class Account < ActiveRecord::Base
   belongs_to :user
 
   def self.name_like(*args)
-    current_scope
+    scoped
   end
 end
