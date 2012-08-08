@@ -75,6 +75,24 @@ class PostsController < ApplicationController
 end
 ```
 
+You can scope queries from an association, useful if you have nested resources:
+
+```ruby
+class PostsController < ApplicationController
+  respond_to :html, :json
+
+  # GET /users/1/posts
+  def index
+    @user = User.find(params[:user_id])
+
+    # This will do a join on the users table, scoping posts to the current user
+    @posts = @users.posts.paraphrase(params)
+
+    respond_with(@posts)
+  end
+end
+```
+
 ### Configuring Mappings
 
 In any of these contexts, the `:to` option of the `:map` method registers
@@ -123,12 +141,4 @@ class Post < ActiveRecord::Base
     map :by_author, :to => [:first_name, :last_name], :allow_nil => :first_name # :first_name does not need to be specified
   end
 end
-```
-
-## Plans / Thoughts for the Future
-
-* Support nested hashes in params.
-
-```ruby
-map :by_author, :to => { :author => [:first_name, :last_name] }
 ```
