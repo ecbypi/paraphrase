@@ -62,8 +62,11 @@ module Paraphrase
     # Filters out parameters irrelevant to the query
     #
     # @param [Hash] params query parameters
-    def initialize(params = {})
+    def initialize(params = {}, relation = nil)
       keys = mappings.map(&:keys).flatten.map(&:to_s)
+
+      @relation = relation || source.scoped
+
       @params = HashWithIndifferentAccess.new(params)
       @params.select! { |key, value| keys.include?(key) }
       @params.freeze
@@ -79,7 +82,7 @@ module Paraphrase
     def results
       return @results if @results
 
-      results = mappings.inject(source.scoped) do |query, scope|
+      results = mappings.inject(@relation) do |query, scope|
         scope.chain(self, @params, query)
       end
 

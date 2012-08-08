@@ -3,6 +3,9 @@ require 'spec_helper'
 module Paraphrase
   describe Query do
 
+    class AccountSearch < Query
+    end
+
     describe ".paraphrases" do
       it "stores the class being queried" do
         AccountSearch.paraphrases :account
@@ -34,6 +37,17 @@ module Paraphrase
 
       it "sets up params with indifferent access" do
         query.params.should have_key 'name'
+      end
+
+      it "accepts an ActiveRecord::Relation to use as the base scope" do
+        user = User.create!
+        associated_account = Account.create!(:user => user)
+        lonely_account = Account.create!
+
+        results = AccountSearch.new({ :name => 'Tyrion Lannister'}, user.accounts).results
+
+        results.should include associated_account
+        results.should_not include lonely_account
       end
     end
 
