@@ -1,3 +1,10 @@
+0.5.0 / 8-7-2012
+
+* Cleanup ScopeMapping class
+* Add ability to query from an existing ActiveRecord::Relation instance
+(typically an association).
+* Update syntax for generating mappings.
+
 0.4.0 / 7-6-2012
 
 * Setup Query#params to be HashWithIndifferentAccess.
