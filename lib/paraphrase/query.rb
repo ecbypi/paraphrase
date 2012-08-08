@@ -15,10 +15,8 @@ module Paraphrase
     #   @return [ActiveRecord::Relation] source to apply scopes to
     class_attribute :mappings, :source, :instance_writer => false
 
-
     # Delegate enumerable methods to results
     delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :results
-
 
     # @!attribute [r] errors
     #   @return [ActiveModel::Errors] errors from determining results
@@ -27,12 +25,10 @@ module Paraphrase
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in mappings
     attr_reader :errors, :params
 
-
     # Set `mappings` on inheritance to ensure they're unique per subclass
     def self.inherited(klass)
       klass.mappings = []
     end
-
 
     # Specify the ActiveRecord model to use as the source for queries
     #
@@ -46,7 +42,6 @@ module Paraphrase
       self.source = klass
     end
 
-
     # Add a {ScopeMapping} instance to {@@mappings .mappings}
     #
     # @see ScopeMapping#initialize
@@ -57,7 +52,6 @@ module Paraphrase
 
       mappings << ScopeMapping.new(name, options)
     end
-
 
     # Filters out parameters irrelevant to the query
     #
@@ -74,7 +68,6 @@ module Paraphrase
       @errors = ActiveModel::Errors.new(self)
     end
 
-
     # Loops through {#mappings} and apply scope methods to {#source}. If values
     # are missing for a required key, an empty array is returned.
     #
@@ -88,7 +81,6 @@ module Paraphrase
 
       @results = @errors.any? ? [] : results
     end
-
 
     def respond_to?(name)
       super || results.respond_to?(name)

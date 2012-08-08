@@ -18,7 +18,6 @@ module Paraphrase
         self.paraphraser = klass
       end
 
-
       # Instantiate the {Query} class that is mapped to `self`.
       #
       # @param [Hash] params query parameters

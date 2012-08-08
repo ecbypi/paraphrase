@@ -16,7 +16,6 @@ module Paraphrase
     #   @return [Array] keys allowed to be nil
     attr_reader :keys, :method_name, :options, :required, :whitelist
 
-
     # @param [Symbol] name name of the scope
     # @param [Hash] options options to configure {ScopeMapping ScopeMapping} instance
     # @option options [Symbol, Array<Symbol>] :key param key(s) to extract values from
@@ -34,7 +33,6 @@ module Paraphrase
 
       @options = options.freeze
     end
-
 
     # Sends {#method_name} to `chain`, extracting arguments from `params`.  If
     # values are missing for any {#keys}, return the `chain` unmodified.
