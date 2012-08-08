@@ -1,6 +1,6 @@
 require 'active_record'
 
-ActiveRecord::Relation.send(:include, Paraphrase::RelationMethods)
+ActiveRecord::Relation.send(:include, Paraphrase::Syntax::Relation)
 
 ActiveRecord::Base.establish_connection(
   :adapter => 'sqlite3',
@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
 end
 
 class Account < ActiveRecord::Base
-  extend Paraphrase::Syntax
+  extend Paraphrase::Syntax::Base
   belongs_to :user
 
   def self.name_like(*args)
