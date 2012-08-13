@@ -42,7 +42,7 @@ module Paraphrase
       # # => SELECT `posts`.* FROM `posts` INNER JOIN `users` ON `users`.`post_id` = `posts`.`id` WHERE `posts`.`title LIKE "%Game of Thrones Finale%";
       # ```
       #
-      # @param [Hash] params query params
+      # @param [Hash] params query parameters
       # @return [Paraphrase::Query]
       def paraphrase(params)
         klass.paraphraser.new(params, self)

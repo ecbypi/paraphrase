@@ -7,9 +7,6 @@ module Paraphrase
   class Query
     # @!attribute [r] mappings
     #   @return [Array<ScopeMapping>] mappings for query
-    #
-    # @!attribute [r] source
-    #   @return [ActiveRecord::Relation] source to apply scopes to
     class_attribute :mappings, :instance_writer => false
 
     # Delegate enumerable methods to results
@@ -38,7 +35,8 @@ module Paraphrase
       mappings << ScopeMapping.new(name, options)
     end
 
-    # Filters out parameters irrelevant to the query
+    # Filters out parameters irrelevant to the query and sets the base scope
+    # for to begin the chain.
     #
     # @param [Hash] params query parameters
     # @param [ActiveRecord::Base, ActiveRecord::Relation] source object to

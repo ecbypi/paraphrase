@@ -4,19 +4,22 @@ module Paraphrase
     #   @return [Array<Symbol>] param keys to extract
     #
     # @!attribute [r] method_name
-    #   @return [Symbol] scope method name
+    #   @return [Symbol] scope name
     #
-    # @!attribute [r] required_keys
+    # @!attribute [r] required
     #   @return [Array] keys required for query
     #
-    # @!attribute [r] whitelist_keys
+    # @!attribute [r] whitelist
     #   @return [Array] keys allowed to be nil
     attr_reader :keys, :method_name, :required, :whitelist
 
     # @param [Symbol] name name of the scope
     # @param [Hash] options options to configure {ScopeMapping ScopeMapping} instance
-    # @option options [Symbol, Array<Symbol>] :key param key(s) to extract values from
-    # @option options [true] :require lists scope as required
+    # @option options [Symbol, Array<Symbol>] :to param key(s) to extract values from
+    # @option options [true, Symbol, Array<Symbol>] :require lists all or a
+    #   subset of param keys as required
+    # @option options [true, Symbol, Array<Symbol>] :allow_nil lists all or a
+    #   subset of param keys as whitelisted
     def initialize(name, options)
       @method_name = name
       @keys = Array(options.delete(:to))
@@ -39,7 +42,7 @@ module Paraphrase
     # well.
     #
     # @param [Hash] params hash of query parameters
-    # @param [ActiveRecord::Relation, ActiveRecord::Base] relation current model scope
+    # @param [ActiveRecord::Relation, ActiveRecord::Base] relation scope chain
     # @return [ActiveRecord::Relation]
     def chain(params, relation)
       scope = relation.klass.method(method_name)
