@@ -6,15 +6,12 @@ module Paraphrase
     # @!attribute [r] method_name
     #   @return [Symbol] scope method name
     #
-    # @!attribute [r] options
-    #   @return [Hash] configuration options
-    #
     # @!attribute [r] required_keys
     #   @return [Array] keys required for query
     #
     # @!attribute [r] whitelist_keys
     #   @return [Array] keys allowed to be nil
-    attr_reader :keys, :method_name, :options, :required, :whitelist
+    attr_reader :keys, :method_name, :required, :whitelist
 
     # @param [Symbol] name name of the scope
     # @param [Hash] options options to configure {ScopeMapping ScopeMapping} instance
@@ -31,7 +28,6 @@ module Paraphrase
         @whitelist = @keys - @required
       end
 
-      @options = options.freeze
     end
 
     # Sends {#method_name} to `chain`, extracting arguments from `params`.  If
