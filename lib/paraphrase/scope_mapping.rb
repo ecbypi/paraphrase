@@ -28,6 +28,9 @@ module Paraphrase
         @whitelist = @keys - @required
       end
 
+      if (whitelist & required).any?
+        raise ArgumentError, "cannot whitelist and require the same keys"
+      end
     end
 
     # Sends {#method_name} to `chain`, extracting arguments from `params`.  If
