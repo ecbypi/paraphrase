@@ -38,23 +38,30 @@ module Paraphrase
     # If {#required? required}, errors are added to the {Query} instance as
     # well.
     #
-    # @param [Query] query {Query} instance applying the scope
     # @param [Hash] params hash of query parameters
-    # @param [ActiveRecord::Relation, ActiveRecord::Base] chain current model scope
+    # @param [ActiveRecord::Relation, ActiveRecord::Base] relation current model scope
     # @return [ActiveRecord::Relation]
-    def chain(query, params, chain)
+    def chain(params, relation)
+      scope = relation.klass.method(method_name)
+
       inputs = keys.map do |key|
         input = params[key]
 
-        if input.nil? && ( required.include?(key) || !whitelist.include?(key) )
-          query.errors.add(key, 'is required') if required.include?(key)
-          break []
+        if input.nil?
+          break    if required.include?(key)
+          break [] if !whitelist.include?(key)
         end
 
         input
       end
 
-      inputs.empty? ? chain : chain.send(method_name, *inputs)
+      if inputs.nil?
+        return
+      elsif inputs.empty?
+        return relation
+      end
+
+      scope.arity == 0 ? scope.call : scope.call(*inputs)
     end
 
     private

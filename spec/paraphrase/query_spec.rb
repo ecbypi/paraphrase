@@ -41,10 +41,9 @@ module Paraphrase
         query.results
       end
 
-      it "returns empty array if errors were added" do
+      it "returns empty array if inputs were missing and required" do
         query = Account.paraphrase({})
         query.results.should eq []
-        query.errors.should_not be_empty
       end
     end
   end

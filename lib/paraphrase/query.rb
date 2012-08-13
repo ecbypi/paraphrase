@@ -2,12 +2,9 @@ require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/hash_with_indifferent_access'
-require 'active_model/naming'
 
 module Paraphrase
   class Query
-    extend ActiveModel::Naming
-
     # @!attribute [r] mappings
     #   @return [Array<ScopeMapping>] mappings for query
     #
@@ -18,15 +15,12 @@ module Paraphrase
     # Delegate enumerable methods to results
     delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :results
 
-    # @!attribute [r] errors
-    #   @return [ActiveModel::Errors] errors from determining results
-    #
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in mappings
     #
     # @!attribute [r] source
     #   @return [ActiveRecord::Relation]
-    attr_reader :errors, :params, :source
+    attr_reader :params, :source
 
     # Set `mappings` on inheritance to ensure they're unique per subclass
     def self.inherited(klass)
@@ -57,8 +51,6 @@ module Paraphrase
       @params.freeze
 
       @source = class_or_relation.scoped
-
-      @errors = ActiveModel::Errors.new(self)
     end
 
     # Loops through {#mappings} and apply scope methods to {#source}. If values
@@ -69,11 +61,12 @@ module Paraphrase
       return @results if @results
 
       ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source => source.name) do
-        results = mappings.inject(source) do |query, scope|
-          scope.chain(self, params, query)
-        end
+        @results = mappings.inject(source) do |query, scope|
+          query = scope.chain(params, query)
 
-        @results = errors.any? ? [] : results
+          break [] if query.nil?
+          query
+        end
       end
     end
 
