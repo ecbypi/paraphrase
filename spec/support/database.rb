@@ -32,3 +32,6 @@ class Account < ActiveRecord::Base
     scoped
   end
 end
+
+class AccountQuery < Paraphrase::Query
+end

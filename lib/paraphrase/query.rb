@@ -13,7 +13,7 @@ module Paraphrase
     #
     # @!attribute [r] source
     #   @return [ActiveRecord::Relation] source to apply scopes to
-    class_attribute :mappings, :source, :instance_writer => false
+    class_attribute :mappings, :instance_writer => false
 
     # Delegate enumerable methods to results
     delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :results
@@ -23,23 +23,14 @@ module Paraphrase
     #
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in mappings
-    attr_reader :errors, :params
+    #
+    # @!attribute [r] source
+    #   @return [ActiveRecord::Relation]
+    attr_reader :errors, :params, :source
 
     # Set `mappings` on inheritance to ensure they're unique per subclass
     def self.inherited(klass)
       klass.mappings = []
-    end
-
-    # Specify the ActiveRecord model to use as the source for queries
-    #
-    # @param [String, Symbol, ActiveRecord::Base] klass name of the class to
-    #   use or the class itself
-    def self.paraphrases(klass)
-      if !klass.is_a?(Class)
-        klass = Object.const_get(klass.to_s.classify)
-      end
-
-      self.source = klass
     end
 
     # Add a {ScopeMapping} instance to {@@mappings .mappings}
@@ -56,14 +47,16 @@ module Paraphrase
     # Filters out parameters irrelevant to the query
     #
     # @param [Hash] params query parameters
-    def initialize(params = {}, relation = nil)
+    # @param [ActiveRecord::Base, ActiveRecord::Relation] source object to
+    #   apply methods to
+    def initialize(params, class_or_relation)
       keys = mappings.map(&:keys).flatten.map(&:to_s)
-
-      @relation = relation || source.scoped
 
       @params = HashWithIndifferentAccess.new(params)
       @params.select! { |key, value| keys.include?(key) }
       @params.freeze
+
+      @source = class_or_relation.scoped
 
       @errors = ActiveModel::Errors.new(self)
     end
@@ -76,7 +69,7 @@ module Paraphrase
       return @results if @results
 
       ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source => source.name) do
-        results = mappings.inject(@relation) do |query, scope|
+        results = mappings.inject(@source) do |query, scope|
           scope.chain(self, @params, query)
         end
 
