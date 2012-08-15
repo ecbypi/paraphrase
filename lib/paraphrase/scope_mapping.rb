@@ -18,14 +18,14 @@ module Paraphrase
     # @option options [Symbol, Array<Symbol>] :to param key(s) to extract values from
     # @option options [true, Symbol, Array<Symbol>] :require lists all or a
     #   subset of param keys as required
-    # @option options [true, Symbol, Array<Symbol>] :allow_nil lists all or a
+    # @option options [true, Symbol, Array<Symbol>] :whitelist lists all or a
     #   subset of param keys as whitelisted
     def initialize(name, options)
       @method_name = name
       @keys = Array(options.delete(:to))
 
       @required = register_keys(options[:require])
-      @whitelist = register_keys(options[:allow_nil])
+      @whitelist = register_keys(options[:whitelist])
 
       if @whitelist.empty? && !@required.empty?
         @whitelist = @keys - @required

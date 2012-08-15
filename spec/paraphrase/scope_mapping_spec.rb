@@ -18,7 +18,7 @@ module Paraphrase
       end
 
       it "passes through nil values if scope has been whitelisted" do
-        mapping = ScopeMapping.new(:name_like, :to => :name, :allow_nil => true)
+        mapping = ScopeMapping.new(:name_like, :to => :name, :whitelist => true)
 
         Account.should_receive(:name_like).with(nil)
         mapping.chain({}, query)
