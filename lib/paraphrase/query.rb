@@ -58,7 +58,7 @@ module Paraphrase
     def results
       return @results if @results
 
-      ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source => source.name) do
+      ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source_name => source.name, :source => source) do
         @results = mappings.inject(source) do |query, scope|
           query = scope.chain(params, query)
 
