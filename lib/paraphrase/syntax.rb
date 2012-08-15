@@ -1,10 +1,24 @@
 module Paraphrase
   module Syntax
     module Base
+      def self.extended(klass)
+        klass.instance_eval do
+          class_attribute :_paraphraser, :instance_writer => false, :instance_reader => false
+        end
+      end
+
+      # Create a {Query} subclass from a block using the `Query` DSL to map
+      # scopes to param keys
+      #
+      # @param [Proc] &block block to to define scope mappings
+      def register_mapping(&block)
+        self._paraphraser = Class.new(Query, &block)
+      end
+
       # Attempts to find paraphrase class based on class name.  Override if
       # using a different naming convention.
       def paraphraser
-        "#{self.name}Query".safe_constantize
+        self._paraphraser || "#{self.name}Query".safe_constantize
       end
 
       # Instantiate the {Query} class that is mapped to `self`.
