@@ -1,11 +1,11 @@
 # paraphrase
 
-`paraphrase` provides a way to map request params to model scopes and apply
-those scopes based on what params are supplied.  It adds a `.paraphrase` method
-to your model classes and `ActiveRecord::Relation` instances that, after
-setting up your scope => key mappings, will apply scopes if the parameters
-mapped to a scope are present. You can also require and whitelist certain
-parameters to provide more flexibility on complex scopes.
+Paraphrase provides a way to map request params to model scopes and apply those
+scopes based on what params are supplied.  It adds a `.paraphrase` method to
+your model classes and `ActiveRecord::Relation` instances that, after setting
+up your scope => key mappings, will apply scopes if the parameters mapped to a
+scope are present. You can also require and whitelist certain parameters to
+provide more flexibility on complex scopes.
 
 ## Installation
 
@@ -150,6 +150,31 @@ class Post < ActiveRecord::Base
   register_mapping do
     # :first_name can be nil, :last_name is still required to apply the scope
     map :by_author, :to => [:first_name, :last_name], :whitelist => :first_name
+  end
+end
+```
+
+### Boolean Scopes
+
+Some scopes take the form of a switch, filtering records based on a boolean
+column. It doesn't make sense for these methods to take any arguments and
+requirng them to would couple them to `Paraphrase::Query` classes in a
+complicated way.
+
+Paraphrase will detect if the method specified takes no arguments.  If not, it
+will call the method without any arguments, assuming the inputs are present and
+valid.
+
+```ruby
+class Post < ActiveRecord::Base
+  register_mapping do
+    map :published, :to => :published
+  end
+
+  # If the params supplied include a non-nil value for :published,
+  # this method will be called.
+  def self.published
+    where('published_at IS NOT NULL')
   end
 end
 ```
