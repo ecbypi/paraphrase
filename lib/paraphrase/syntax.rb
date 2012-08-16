@@ -18,7 +18,9 @@ module Paraphrase
       # Attempts to find paraphrase class based on class name.  Override if
       # using a different naming convention.
       def paraphraser
-        self._paraphraser || "#{self.name}Query".safe_constantize
+        self._paraphraser || "#{self.name}Query".constantize
+      rescue
+        nil
       end
 
       # Instantiate the {Query} class that is mapped to `self`.
