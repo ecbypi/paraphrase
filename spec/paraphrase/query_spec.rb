@@ -58,5 +58,27 @@ module Paraphrase
         query.results.should eq []
       end
     end
+
+    describe "preserves" do
+      let(:accounts) do
+        user = User.create!
+        user.accounts << Account.create!
+      end
+
+      let(:results) do
+        klass = Class.new(Query) do
+          map :name_like, :to => :name
+        end
+
+        klass.new({ :name => 'name' }, accounts).results.to_a
+      end
+
+      it "the relation passed in during initialization" do
+        # Create an extra account that shouldn't be in the results
+        Account.create!
+
+        results.should eq accounts.to_a
+      end
+    end
   end
 end

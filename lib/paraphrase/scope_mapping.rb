@@ -64,7 +64,7 @@ module Paraphrase
         return relation
       end
 
-      scope.arity == 0 ? scope.call : scope.call(*inputs)
+      scope.arity == 0 ? relation.send(method_name) : relation.send(method_name, *inputs)
     end
 
     private
