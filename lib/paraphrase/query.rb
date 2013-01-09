@@ -1,3 +1,4 @@
+require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/string/inflections'
@@ -45,7 +46,7 @@ module Paraphrase
       keys = mappings.map(&:keys).flatten.map(&:to_s)
 
       @params = HashWithIndifferentAccess.new(params)
-      @params.select! { |key, value| keys.include?(key) }
+      @params.select! { |key, value| keys.include?(key) && value.present? }
       @params.freeze
 
       @source = class_or_relation.scoped

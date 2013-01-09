@@ -22,9 +22,10 @@ module Paraphrase
       let(:query) do
         klass = Class.new(Query) do
           map :name_like, :to => :name
+          map :email_like, :to => :email
         end
 
-        klass.new({ :name => '', :nickname => '' }, Account)
+        klass.new({ :name => 'name', :nickname => '', :email => '' }, Account)
       end
 
       it "filters out params not specified in mappings" do
@@ -34,6 +35,10 @@ module Paraphrase
 
       it "sets up params with indifferent access" do
         query.params.should have_key 'name'
+      end
+
+      it 'filters out blank values' do
+        query.params.should_not have_key :email
       end
     end
 
