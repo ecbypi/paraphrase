@@ -69,8 +69,8 @@ module Paraphrase
       end
     end
 
-    def respond_to?(name)
-      super || results.respond_to?(name)
+    def respond_to_missing?(name, include_private = false)
+      super || results.respond_to?(name, include_private)
     end
 
     protected
