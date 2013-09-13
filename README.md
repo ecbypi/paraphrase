@@ -1,6 +1,6 @@
 # paraphrase
 
-[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/ecbypi/paraphrase)
+[![Code Climate](https://codeclimate.com/github/ecbypi/paraphrase.png)](https://codeclimate.com/github/ecbypi/paraphrase)
 
 Paraphrase provides a way to map request params to model scopes and apply those
 scopes based on what params are supplied.  It adds a `.paraphrase` method to
