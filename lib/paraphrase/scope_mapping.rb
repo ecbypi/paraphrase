@@ -47,7 +47,7 @@ module Paraphrase
     # @param [ActiveRecord::Relation, ActiveRecord::Base] relation scope chain
     # @return [ActiveRecord::Relation]
     def chain(params, relation)
-      scope = relation.klass.method(method_name)
+      scope = relation.respond_to?(:klass) ? relation.klass.method(method_name) : relation.method(method_name)
 
       inputs = keys.map do |key|
         input = params[key]

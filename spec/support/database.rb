@@ -26,11 +26,11 @@ class Account < ActiveRecord::Base
   belongs_to :user
 
   def self.title_like(*args)
-    scoped
+    ActiveRecord::VERSION::MAJOR > 3 ?  all : scoped
   end
 
   def self.name_like(*args)
-    scoped
+    ActiveRecord::VERSION::MAJOR > 3 ?  all : scoped
   end
 end
 

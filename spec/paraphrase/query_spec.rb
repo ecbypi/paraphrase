@@ -51,8 +51,8 @@ module Paraphrase
       end
 
       it "loops through scope methods and applies them to source" do
-        Account.should_receive(:title_like).and_return(Account.scoped)
-        Account.should_receive(:name_like).and_return(Account.scoped)
+        Account.should_receive(:title_like).and_return(Account)
+        Account.should_receive(:name_like).and_return(Account)
 
         query = klass.new({ :name => 'Jon Snow', :title => 'Wall Watcher'}, Account)
         query.results
@@ -65,24 +65,19 @@ module Paraphrase
     end
 
     describe "preserves" do
-      let(:accounts) do
-        user = User.create!
-        user.accounts << Account.create!
-      end
-
-      let(:results) do
+      it "the relation passed in during initialization" do
         klass = Class.new(Query) do
           map :name_like, :to => :name
         end
 
-        klass.new({ :name => 'name' }, accounts).results.to_a
-      end
-
-      it "the relation passed in during initialization" do
-        # Create an extra account that shouldn't be in the results
+        user = User.create!
+        Account.create!(user: user)
         Account.create!
 
-        results.should eq accounts.to_a
+        query = klass.new({ :name => 'name' }, Account.where(user_id: user.id))
+        results = query.results
+
+        results.to_a.should eq user.accounts.to_a
       end
     end
   end

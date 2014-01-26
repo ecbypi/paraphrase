@@ -49,7 +49,7 @@ module Paraphrase
       @params.select! { |key, value| keys.include?(key) && value.present? }
       @params.freeze
 
-      @source = class_or_relation.scoped
+      @source = class_or_relation
     end
 
     # Loops through {#mappings} and apply scope methods to {#source}. If values
