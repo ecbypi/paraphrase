@@ -7,16 +7,13 @@ ActiveRecord::Base.establish_connection(
   :database => ':memory:'
 )
 
-ActiveRecord::Base.silence do
-  ActiveRecord::Migration.verbose = false
+ActiveRecord::Migration.verbose = false
+ActiveRecord::Schema.define do
+  create_table :users, :force => true do
+  end
 
-  ActiveRecord::Schema.define do
-    create_table :users, :force => true do
-    end
-
-    create_table :accounts, :force => true do |t|
-      t.references :user
-    end
+  create_table :accounts, :force => true do |t|
+    t.references :user
   end
 end
 
