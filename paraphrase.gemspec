@@ -30,7 +30,13 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec', '~> 2.10'
   gem.add_development_dependency 'redcarpet', '~> 2.1.1'
   gem.add_development_dependency 'rake', '~> 0.9.2'
-  gem.add_development_dependency 'sqlite3',  '~> 1.3.6'
   gem.add_development_dependency 'appraisal', '~> 0.4'
   gem.add_development_dependency 'pry', '~> 0.9'
+
+  if RUBY_PLATFORM == 'java'
+    gem.add_development_dependency 'activerecord-jdbcsqlite3-adapter'
+    gem.add_development_dependency 'jdbc-sqlite3'
+  else
+    gem.add_development_dependency 'sqlite3',  '~> 1.3.6'
+  end
 end
