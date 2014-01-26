@@ -32,4 +32,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rake', '~> 0.9.2'
   gem.add_development_dependency 'sqlite3',  '~> 1.3.6'
   gem.add_development_dependency 'appraisal', '~> 0.4'
+  gem.add_development_dependency 'pry', '~> 0.9'
 end
