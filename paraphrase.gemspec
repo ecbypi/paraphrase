@@ -5,9 +5,9 @@ require File.expand_path('../lib/paraphrase/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.name          = "paraphrase"
   gem.version       = Paraphrase::VERSION
-  gem.summary       = %q{Map params to model scopes}
+  gem.summary       = %q{Map query params to model scopes}
   gem.description   = %q{
-                        Map query parameters to model scopes, pairing one or
+                        Map query params to model scopes, pairing one or
                         more keys to a scope. Parameters can be required, or
                         whitelisted providing fine tuned control over how
                         scopes are run.
