@@ -1,53 +1,59 @@
 require 'spec_helper'
+require 'support/models/account'
 
 module Paraphrase
   describe Scope do
+    def build_account_scope(options = {})
+      options.reverse_merge!(
+        keys: [:name],
+        to: :name_like
+      )
+
+      keys = options.delete(:keys)
+
+      Scope.new(keys, options)
+    end
 
     # NOTE: This is unfortunately necessary until a cleaner API is determined
     # or `Model.scoped` is no more. The intended API is to initialize a `Query`
     # with an `ActiveRecord::Relation` so `Scope` instances should always
     # receive a relation in `#chain`.
-    def accounts_relation
+    def account_relation
       ActiveRecord::VERSION::MAJOR > 3 ? Account.all : Account.scoped
     end
 
     describe "#chain" do
-      let(:scope) { Scope.new([:name], :to => :name_like) }
-
       it "applies scope method to relation with values from params hash" do
-        Account.should_receive(:name_like).with('Jon Snow')
+        scope = build_account_scope
 
-        scope.chain({ :name => 'Jon Snow' }, accounts_relation)
+        Account.should_receive(:name_like).with('Jon Snow')
+        scope.chain({ :name => 'Jon Snow' }, account_relation)
       end
 
       it "does nothing if values are missing" do
-        Account.should_not_receive(:name_like).with('Jon Snow')
+        scope = build_account_scope
 
-        scope.chain({}, accounts_relation)
+        Account.should_not_receive(:name_like)
+        scope.chain({}, account_relation)
       end
 
-      it "passes through nil values if scope has been whitelisted" do
-        scope = Scope.new([:name], :to => :name_like, :whitelist => true)
+      it "passes through blank values if scope has been whitelisted" do
+        scope = build_account_scope(whitelist: true)
 
         Account.should_receive(:name_like).with(nil)
-
-        scope.chain({}, accounts_relation)
-      end
-    end
-
-    describe "compound keys" do
-      let(:compound_scope) do
-        Scope.new([:first_name, :last_name], :to => :name_like, :require => :last_name)
+        scope.chain({}, account_relation)
       end
 
-      it "can require a subset of a compound key" do
-        Account.should_receive(:name_like).with(nil, 'Lannister')
+      it 'allows whitelisting a subset of keys' do
+        scope = build_account_scope(
+          keys: [:name, :status],
+          to: :with_name_and_status,
+          whitelist: true
+        )
 
-        compound_scope.chain({ :last_name => 'Lannister' }, accounts_relation)
-      end
+        Account.should_receive(:with_name_and_status).with('George', nil)
 
-      it "whitelists the the non-required keys of a compound key" do
-        compound_scope.whitelist.include?(:first_name).should be_true
+        scope.chain({ name: 'George' }, account_relation)
       end
     end
   end
