@@ -8,7 +8,7 @@ module Paraphrase
   class Query
     # @!attribute [r] mappings
     #   @return [Array<ScopeMapping>] mappings for query
-    class_attribute :mappings, :instance_writer => false
+    class_attribute :mappings, :_source, :instance_writer => false
 
     # Delegate enumerable methods to results
     delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :results
@@ -16,13 +16,21 @@ module Paraphrase
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in mappings
     #
-    # @!attribute [r] source
+    # @!attribute [r] relation
     #   @return [ActiveRecord::Relation]
-    attr_reader :params, :source
+    attr_reader :params, :relation
 
     # Set `mappings` on inheritance to ensure they're unique per subclass
     def self.inherited(klass)
       klass.mappings = []
+    end
+
+    # Specify the `ActiveRecord` source class if not determinable from the name
+    # of the `Paraphrase::Query` subclass.
+    #
+    # @param [String, Symbol] name name of the source class
+    def self.source(name)
+      self._source = name.to_s
     end
 
     # Add a {ScopeMapping} instance to {@@mappings .mappings}
@@ -40,27 +48,40 @@ module Paraphrase
     # for to begin the chain.
     #
     # @param [Hash] params query parameters
-    # @param [ActiveRecord::Base, ActiveRecord::Relation] source object to
-    #   apply methods to
-    def initialize(params, class_or_relation)
+    # @param [ActiveRecord::Relation] relation object to apply methods to
+    def initialize(params, relation = source)
       keys = mappings.map(&:keys).flatten.map(&:to_s)
 
       @params = HashWithIndifferentAccess.new(params)
       @params.select! { |key, value| keys.include?(key) && value.present? }
       @params.freeze
 
-      @source = class_or_relation
+      @relation = relation
     end
 
-    # Loops through {#mappings} and apply scope methods to {#source}. If values
+    # Return an `ActiveRecord::Relation` corresponding to the source class
+    # determined from the `_source` class attribute or the name of the query
+    # class.
+    #
+    # @return [ActiveRecord::Relation]
+    def source
+      @source ||= begin
+        name = _source || self.class.to_s.sub(/Query$/, '')
+        klass = name.constantize
+
+        ActiveRecord::VERSION::MAJOR > 3 ? klass.all : klass.scoped
+      end
+    end
+
+    # Loops through {#mappings} and apply scope methods to {#relation}. If values
     # are missing for a required key, an empty array is returned.
     #
     # @return [ActiveRecord::Relation, Array]
     def results
       return @results if @results
 
-      ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source_name => source.name, :source => source) do
-        @results = mappings.inject(source) do |query, scope|
+      ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source_name => source.name, :source => relation) do
+        @results = mappings.inject(relation) do |query, scope|
           query = scope.chain(params, query)
 
           break [] if query.nil?

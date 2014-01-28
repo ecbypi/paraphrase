@@ -19,21 +19,35 @@ module Paraphrase
       end
     end
 
+    describe '#source' do
+      it 'is determined via query class name' do
+        PostQuery.new({}).relation.klass.should eq Post
+      end
+
+      it 'can be manually specified in the class' do
+        klass = Class.new(Query) do
+          source :User
+        end
+
+        klass.new({}).relation.klass.should eq User
+      end
+    end
+
     describe "on initialization" do
       it "filters out params not specified in mappings" do
-        query = PostQuery.new({ nickname: 'bill', title: 'william' }, Post)
+        query = PostQuery.new(nickname: 'bill', title: 'william')
 
         query.params.should_not have_key :nickname
         query.params.should have_key :title
       end
 
       it "sets up params with indifferent access" do
-        query = PostQuery.new({ title: 'D3 How-To' }, Post)
+        query = PostQuery.new(title: 'D3 How-To')
         query.params.should have_key 'title'
       end
 
       it 'filters out blank values' do
-        query = PostQuery.new({ title: '' }, Post)
+        query = PostQuery.new(title: '')
 
         query.params.should_not have_key :title
       end
@@ -44,7 +58,7 @@ module Paraphrase
         Post.should_receive(:titled).and_call_original
         Post.should_receive(:published)
 
-        query = PostQuery.new({ :title => 'Cooking Eggs', :is_published => true }, Post)
+        query = PostQuery.new(:title => 'Cooking Eggs', :is_published => true)
         query.results
       end
 
@@ -52,7 +66,7 @@ module Paraphrase
         Post.should_not_receive(:titled)
         Post.should_not_receive(:published)
 
-        query = PostQuery.new({}, Post)
+        query = PostQuery.new({})
         query.results
       end
 
