@@ -49,7 +49,7 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     # @param [ActiveRecord::Relation] relation object to apply methods to
-    def initialize(params, relation = source)
+    def initialize(params = {}, relation = source)
       keys = mappings.map(&:keys).flatten.map(&:to_s)
 
       @params = HashWithIndifferentAccess.new(params)

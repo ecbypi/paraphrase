@@ -21,7 +21,7 @@ module Paraphrase
 
     describe '#source' do
       it 'is determined via query class name' do
-        PostQuery.new({}).relation.klass.should eq Post
+        PostQuery.new.relation.klass.should eq Post
       end
 
       it 'can be manually specified in the class' do
@@ -29,7 +29,7 @@ module Paraphrase
           source :User
         end
 
-        klass.new({}).relation.klass.should eq User
+        klass.new.relation.klass.should eq User
       end
     end
 
@@ -66,7 +66,7 @@ module Paraphrase
         Post.should_not_receive(:titled)
         Post.should_not_receive(:published)
 
-        query = PostQuery.new({})
+        query = PostQuery.new
         query.results
       end
 
