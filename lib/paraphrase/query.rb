@@ -34,7 +34,8 @@ module Paraphrase
       self._source = name.to_s
     end
 
-    # Add a {Mapping} instance to {@@scopes .scopes}
+    # Add a {Scope} instance to {Query#scopes}. Defines a reader for each key
+    # to read from {Query#params}.
     #
     # @see Scope#initialize
     def self.map(*keys)
@@ -46,6 +47,12 @@ module Paraphrase
       end
 
       scopes << Scope.new(keys, options)
+
+      keys.each do |key|
+        unless method_defined?(key)
+          define_method(key) { params[key] }
+        end
+      end
     end
 
     # Filters out parameters irrelevant to the query and sets the base scope
@@ -68,6 +75,8 @@ module Paraphrase
         end
       end
     end
+
+    alias :[] :send
 
     # Return an `ActiveRecord::Relation` corresponding to the source class
     # determined from the `_source` class attribute or the name of the query

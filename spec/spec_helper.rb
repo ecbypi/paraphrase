@@ -21,6 +21,7 @@ RSpec.configure do |config|
       create_table :posts, :force => true do |t|
         t.string :title
         t.boolean :published
+        t.datetime :published_at
         t.references :user
       end
 
