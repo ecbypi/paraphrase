@@ -27,7 +27,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'bundler', '~> 1.0'
   gem.add_development_dependency 'yard', '~> 0.7'
-  gem.add_development_dependency 'rspec', '~> 2.10'
+  gem.add_development_dependency 'rspec', '~> 2.14'
   gem.add_development_dependency 'rake', '~> 0.9.2'
   gem.add_development_dependency 'appraisal', '~> 0.4'
   gem.add_development_dependency 'pry', '~> 0.9'
