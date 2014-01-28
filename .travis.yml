@@ -8,5 +8,5 @@ gemfile:
   - gemfiles/3.1.gemfile
   - gemfiles/3.2.gemfile
   - gemfiles/4.0.gemfile
-install: 'bundle install'
+install: 'bundle install -j 4'
 script: 'bundle exec rake'
