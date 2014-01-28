@@ -22,9 +22,9 @@ module Paraphrase
     #   subset of param keys as required
     # @option options [true, Symbol, Array<Symbol>] :whitelist lists all or a
     #   subset of param keys as whitelisted
-    def initialize(name, options)
-      @name = name
-      @keys = Array(options.delete(:to))
+    def initialize(keys, options)
+      @keys = keys
+      @name = options[:to]
 
       @required = register_keys(options[:require])
       @whitelist = register_keys(options[:whitelist])

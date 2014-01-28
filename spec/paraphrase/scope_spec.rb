@@ -4,7 +4,7 @@ module Paraphrase
   describe Scope do
 
     describe "#chain" do
-      let(:scope) { Scope.new(:name_like, :to => :name) }
+      let(:scope) { Scope.new([:name], :to => :name_like) }
 
       it "applies scope method to relation with values from params hash" do
         Account.should_receive(:name_like).with('Jon Snow')
@@ -19,7 +19,7 @@ module Paraphrase
       end
 
       it "passes through nil values if scope has been whitelisted" do
-        scope = Scope.new(:name_like, :to => :name, :whitelist => true)
+        scope = Scope.new([:name], :to => :name_like, :whitelist => true)
 
         Account.should_receive(:name_like).with(nil)
 
@@ -29,7 +29,7 @@ module Paraphrase
 
     describe "compound keys" do
       let(:compound_scope) do
-        Scope.new(:name_like, :to => [:first_name, :last_name], :require => :last_name)
+        Scope.new([:first_name, :last_name], :to => :name_like, :require => :last_name)
       end
 
       it "can require a subset of a compound key" do

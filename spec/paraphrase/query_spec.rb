@@ -5,9 +5,9 @@ require 'support/models/user'
 module Paraphrase
   describe Query do
     class ::PostQuery < Paraphrase::Query
-      map :titled, :to => :title
-      map :published, :to => :is_published
-      map :by_users, :to => :authors
+      map :title, :to => :titled
+      map :is_published, :to => :published
+      map :authors, :to => :by_users
     end
 
     describe ".map" do
@@ -16,7 +16,7 @@ module Paraphrase
       end
 
       it "raises an error if a scope is added twice" do
-        expect { PostQuery.map :titled, :to => :name }.to raise_error Paraphrase::DuplicateScopeError
+        expect { PostQuery.map :name, :to => :titled }.to raise_error Paraphrase::DuplicateScopeError
       end
     end
 

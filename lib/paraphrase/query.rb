@@ -2,6 +2,7 @@ require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/string/inflections'
+require 'active_support/core_ext/array/extract_options'
 require 'active_support/hash_with_indifferent_access'
 
 module Paraphrase
@@ -36,12 +37,15 @@ module Paraphrase
     # Add a {Mapping} instance to {@@scopes .scopes}
     #
     # @see Scope#initialize
-    def self.map(name, options)
-      if scopes.map(&:name).include?(name)
-        raise DuplicateScopeError, "scope :#{name} has already been added"
+    def self.map(*keys)
+      options = keys.extract_options!
+      scope_name = options[:to]
+
+      if scopes.any? { |scope| scope.name == scope_name }
+        raise DuplicateScopeError, "scope :#{scope_name} has already been mapped"
       end
 
-      scopes << Scope.new(name, options)
+      scopes << Scope.new(keys, options)
     end
 
     # Filters out parameters irrelevant to the query and sets the base scope
