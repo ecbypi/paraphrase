@@ -1,13 +1,34 @@
 require 'spec_helper'
+require 'support/models/account'
+require 'support/models/user'
 
 module Paraphrase
-  module Syntax
-    describe Base do
-      describe "#register_mapping" do
-        it "creates new sublcass of Query" do
-          Account.register_mapping {}
-          expect(Account._paraphraser).not_to be_nil
-        end
+  describe Syntax do
+    class ::AccountQuery < Paraphrase::Query
+      map :name, :to => :named
+    end
+
+    describe '.paraphrase' do
+      it "passes through results from an initialized query" do
+        expect_any_instance_of(AccountQuery).to receive(:relation).and_call_original
+
+        result = Account.paraphrase
+        expect(result).to eq Account
+      end
+
+      it 'raises if query class is not defined' do
+        expect { User.paraphrase }.to raise_error Paraphrase::NoQueryDefined
+      end
+
+      it "works on instances of `ActiveRecord::Relation`, preserving existing filters" do
+        user = User.create!
+        Account.create!(user: user)
+        Account.create!(name: 'Sophie')
+        account = Account.create!(name: 'Sophie', user: user)
+
+        result = user.accounts.paraphrase(name: 'Sophie')
+
+        expect(result).to eq [account]
       end
     end
   end
