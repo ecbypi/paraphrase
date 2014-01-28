@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'support/models/account'
 
 module Paraphrase
   describe Scope do

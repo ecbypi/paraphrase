@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'support/models/account'
-require 'support/models/user'
 
 module Paraphrase
   describe Syntax do

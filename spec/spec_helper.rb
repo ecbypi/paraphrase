@@ -8,27 +8,54 @@ ActiveRecord::Base.establish_connection(
   :database => ':memory:'
 )
 
+ActiveRecord::Migration.verbose = false
+ActiveRecord::Schema.define do
+  create_table :users, :force => true do
+  end
 
-RSpec.configure do |config|
-  config.before :suite do
-    ActiveRecord::Relation.send(:include, Paraphrase::Syntax)
+  create_table :posts, :force => true do |t|
+    t.string :title
+    t.boolean :published
+    t.datetime :published_at
+    t.references :user
+  end
 
-    ActiveRecord::Migration.verbose = false
-    ActiveRecord::Schema.define do
-      create_table :users, :force => true do
-      end
+  create_table :accounts, :force => true do |t|
+    t.string :name
+    t.references :user
+  end
+end
 
-      create_table :posts, :force => true do |t|
-        t.string :title
-        t.boolean :published
-        t.datetime :published_at
-        t.references :user
-      end
+ActiveRecord::Base.extend Paraphrase::Syntax
+ActiveRecord::Relation.send(:include, Paraphrase::Syntax)
 
-      create_table :accounts, :force => true do |t|
-        t.string :name
-        t.references :user
-      end
-    end
+class User < ActiveRecord::Base
+  has_many :accounts
+  has_many :posts
+end
+
+class Post < ActiveRecord::Base
+  belongs_to :user
+
+  scope :titled, ->(title) { where(title: title) }
+
+  def self.published
+    where(published: true)
+  end
+
+  def self.by_users(names)
+    joins(:user).where(users: { name: names })
+  end
+
+  def self.published_between(start_date, end_date)
+    where(published_at: start_date..end_date)
+  end
+end
+
+class Account < ActiveRecord::Base
+  belongs_to :user
+
+  def self.named(name)
+    where(name: name)
   end
 end

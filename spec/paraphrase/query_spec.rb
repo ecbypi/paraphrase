@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'support/models/post'
-require 'support/models/user'
 
 module Paraphrase
   describe Query do
