@@ -8,9 +8,6 @@ ActiveRecord::Base.establish_connection(
   :database => ':memory:'
 )
 
-require 'support/models/user'
-require 'support/models/account'
-
 RSpec.configure do |config|
   config.before :suite do
     ActiveRecord::Migration.verbose = false
