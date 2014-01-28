@@ -116,5 +116,3 @@ module Paraphrase
     end
   end
 end
-
-require 'paraphrase/scope_mapping'
