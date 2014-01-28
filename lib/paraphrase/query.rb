@@ -83,9 +83,7 @@ module Paraphrase
     def source
       @source ||= begin
         name = _source || self.class.to_s.sub(/Query$/, '')
-        klass = name.constantize
-
-        ActiveRecord::VERSION::MAJOR > 3 ? klass.all : klass.scoped
+        name.constantize
       end
     end
 

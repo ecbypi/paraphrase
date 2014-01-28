@@ -42,7 +42,7 @@ module Paraphrase
 
     describe '#source' do
       it 'is determined via query class name' do
-        expect(PostQuery.new.relation.klass).to eq Post
+        expect(PostQuery.new.relation).to eq Post
       end
 
       it 'can be manually specified in the class' do
@@ -50,7 +50,7 @@ module Paraphrase
           source :User
         end
 
-        expect(klass.new.relation.klass).to eq User
+        expect(klass.new.relation).to eq User
       end
     end
 
