@@ -1,11 +1,11 @@
 require 'active_support/core_ext/object/blank'
 
 module Paraphrase
-  class ScopeMapping
+  class Scope
     # @!attribute [r] keys
     #   @return [Array<Symbol>] param keys to extract
     #
-    # @!attribute [r] method_name
+    # @!attribute [r] name
     #   @return [Symbol] scope name
     #
     # @!attribute [r] required
@@ -13,17 +13,17 @@ module Paraphrase
     #
     # @!attribute [r] whitelist
     #   @return [Array] keys allowed to be nil
-    attr_reader :keys, :method_name, :required, :whitelist
+    attr_reader :keys, :name, :required, :whitelist
 
     # @param [Symbol] name name of the scope
-    # @param [Hash] options options to configure {ScopeMapping ScopeMapping} instance
+    # @param [Hash] options options to configure {Scope Scope} instance
     # @option options [Symbol, Array<Symbol>] :to param key(s) to extract values from
     # @option options [true, Symbol, Array<Symbol>] :require lists all or a
     #   subset of param keys as required
     # @option options [true, Symbol, Array<Symbol>] :whitelist lists all or a
     #   subset of param keys as whitelisted
     def initialize(name, options)
-      @method_name = name
+      @name = name
       @keys = Array(options.delete(:to))
 
       @required = register_keys(options[:require])
@@ -38,7 +38,7 @@ module Paraphrase
       end
     end
 
-    # Sends {#method_name} to `chain`, extracting arguments from `params`.  If
+    # Sends {#name} to `chain`, extracting arguments from `params`.  If
     # values are missing for any {#keys}, return the `chain` unmodified.
     # If {#required? required}, errors are added to the {Query} instance as
     # well.
@@ -47,7 +47,7 @@ module Paraphrase
     # @param [ActiveRecord::Relation, ActiveRecord::Base] relation scope chain
     # @return [ActiveRecord::Relation]
     def chain(params, relation)
-      scope = relation.respond_to?(:klass) ? relation.klass.method(method_name) : relation.method(method_name)
+      scope = relation.respond_to?(:klass) ? relation.klass.method(name) : relation.method(name)
 
       inputs = keys.map do |key|
         input = params[key]
@@ -66,7 +66,7 @@ module Paraphrase
         return relation
       end
 
-      scope.arity == 0 ? relation.send(method_name) : relation.send(method_name, *inputs)
+      scope.arity == 0 ? relation.send(name) : relation.send(name, *inputs)
     end
 
     private

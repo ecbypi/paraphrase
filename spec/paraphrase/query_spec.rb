@@ -11,8 +11,8 @@ module Paraphrase
     end
 
     describe ".map" do
-      it "adds information to Query.mappings" do
-        PostQuery.mappings.should_not be_empty
+      it "adds information to Query.scopes" do
+        PostQuery.scopes.should_not be_empty
       end
 
       it "raises an error if a scope is added twice" do
@@ -40,7 +40,7 @@ module Paraphrase
     end
 
     describe "#params" do
-      it "filters out params not specified in mappings" do
+      it "filters out params not specified in scopes" do
         query = PostQuery.new(nickname: 'bill', title: 'william')
 
         query.params.should_not have_key :nickname

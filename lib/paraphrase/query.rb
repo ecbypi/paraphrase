@@ -6,23 +6,23 @@ require 'active_support/hash_with_indifferent_access'
 
 module Paraphrase
   class Query
-    # @!attribute [r] mappings
-    #   @return [Array<ScopeMapping>] mappings for query
-    class_attribute :mappings, :_source, :instance_writer => false
+    # @!attribute [r] scopes
+    #   @return [Array<Scope>] scopes for query
+    class_attribute :scopes, :_source, :instance_writer => false
 
     # Delegate enumerable methods to `relation`
     delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :relation
 
     # @!attribute [r] params
-    #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in mappings
+    #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
     #
     # @!attribute [r] relation
     #   @return [ActiveRecord::Relation]
     attr_reader :params, :relation
 
-    # Set `mappings` on inheritance to ensure they're unique per subclass
+    # Set `scopes` on inheritance to ensure they're unique per subclass
     def self.inherited(klass)
-      klass.mappings = []
+      klass.scopes = []
     end
 
     # Specify the `ActiveRecord` source class if not determinable from the name
@@ -33,15 +33,15 @@ module Paraphrase
       self._source = name.to_s
     end
 
-    # Add a {ScopeMapping} instance to {@@mappings .mappings}
+    # Add a {Mapping} instance to {@@scopes .scopes}
     #
-    # @see ScopeMapping#initialize
+    # @see Scope#initialize
     def self.map(name, options)
-      if mappings.map(&:method_name).include?(name)
+      if scopes.map(&:name).include?(name)
         raise DuplicateScopeError, "scope :#{name} has already been added"
       end
 
-      mappings << ScopeMapping.new(name, options)
+      scopes << Scope.new(name, options)
     end
 
     # Filters out parameters irrelevant to the query and sets the base scope
@@ -50,13 +50,13 @@ module Paraphrase
     # @param [Hash] params query parameters
     # @param [ActiveRecord::Relation] relation object to apply methods to
     def initialize(params = {}, relation = source)
-      keys = mappings.map(&:keys).flatten.map(&:to_s)
+      keys = scopes.map(&:keys).flatten.map(&:to_s)
 
       @params = params.with_indifferent_access.slice(*keys)
       scrub_params!
 
       ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source_name => source.name, :source => relation) do
-        @relation = mappings.inject(relation) do |query, scope|
+        @relation = scopes.inject(relation) do |query, scope|
           query = scope.chain(params, query)
 
           break [] if query.nil?
