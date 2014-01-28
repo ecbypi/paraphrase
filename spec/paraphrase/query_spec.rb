@@ -88,11 +88,14 @@ module Paraphrase
     end
 
     it 'skips scopes if query params are missing' do
+      Post.should_not_receive(:published_between)
       Post.should_not_receive(:titled)
       Post.should_not_receive(:by_users)
       Post.should_receive(:published)
 
       PostQuery.new(
+        start_date: Time.local(2010, 10, 30),
+        end_date: 'foo',
         is_published: '1',
         authors: [],
         title: ['', {}]
