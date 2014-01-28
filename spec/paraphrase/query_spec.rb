@@ -21,7 +21,7 @@ module Paraphrase
 
     describe ".map" do
       it "adds information to Query.scopes" do
-        PostQuery.scopes.should_not be_empty
+        expect(PostQuery.scopes).not_to be_empty
       end
 
       it "raises an error if a scope is added twice" do
@@ -31,9 +31,9 @@ module Paraphrase
       it 'defines readers for each key' do
         query = PostQuery.new
 
-        query.should respond_to :title
-        query.should respond_to :is_published
-        query.should respond_to :authors
+        expect(query).to respond_to :title
+        expect(query).to respond_to :is_published
+        expect(query).to respond_to :authors
       end
     end
 
@@ -44,7 +44,7 @@ module Paraphrase
 
     describe '#source' do
       it 'is determined via query class name' do
-        PostQuery.new.relation.klass.should eq Post
+        expect(PostQuery.new.relation.klass).to eq Post
       end
 
       it 'can be manually specified in the class' do
@@ -52,7 +52,7 @@ module Paraphrase
           source :User
         end
 
-        klass.new.relation.klass.should eq User
+        expect(klass.new.relation.klass).to eq User
       end
     end
 
@@ -60,9 +60,9 @@ module Paraphrase
       it 'retreives values from #params or uses custom reader if defined' do
         query = PostQuery.new(title: 'Morning Joe', start_date: '2010-10-30', end_date: 'foo')
 
-        query[:title].should eq 'Morning Joe'
-        query[:start_date].should eq Time.local(2010, 10, 30)
-        query[:end_date].should be_nil
+        expect(query[:title]).to eq 'Morning Joe'
+        expect(query[:start_date]).to eq Time.local(2010, 10, 30)
+        expect(query[:end_date]).to be_nil
       end
     end
 
@@ -70,28 +70,28 @@ module Paraphrase
       it "filters out params not specified in scopes" do
         query = PostQuery.new(nickname: 'bill', title: 'william')
 
-        query.params.should_not have_key :nickname
-        query.params.should have_key :title
+        expect(query.params).not_to have_key :nickname
+        expect(query.params).to have_key :title
       end
 
       it "sets up params with indifferent access" do
         query = PostQuery.new(title: 'D3 How-To')
-        query.params.should have_key 'title'
+        expect(query.params).to have_key 'title'
       end
 
       it 'recursively filters out blank values' do
         query = PostQuery.new(title: { key: ['', { key: [] }, []] }, authors: ['', 'kevin', ['', {}], { key: [' '] }])
 
-        query.params[:authors].should eq ['kevin']
-        query.params.should_not have_key :title
+        expect(query.params[:authors]).to eq ['kevin']
+        expect(query.params).not_to have_key :title
       end
     end
 
     it 'skips scopes if query params are missing' do
-      Post.should_not_receive(:published_between)
-      Post.should_not_receive(:titled)
-      Post.should_not_receive(:by_users)
-      Post.should_receive(:published)
+      expect(Post).not_to receive(:published_between)
+      expect(Post).not_to receive(:titled)
+      expect(Post).not_to receive(:by_users)
+      expect(Post).to receive(:published)
 
       PostQuery.new(
         start_date: Time.local(2010, 10, 30),
@@ -110,9 +110,9 @@ module Paraphrase
 
       query = PostQuery.new({ title: 'Red' }, user.posts.published)
 
-      query.should include red_post
-      query.should_not include blue_post
-      query.should_not include green_post
+      expect(query).to include red_post
+      expect(query).not_to include blue_post
+      expect(query).not_to include green_post
     end
 
     it 'can have additional scopes chained' do
@@ -121,7 +121,7 @@ module Paraphrase
 
       query = PostQuery.new(title: 'Red').published
 
-      query.to_a.should eq [post]
+      expect(query.to_a).to eq [post]
     end
   end
 end

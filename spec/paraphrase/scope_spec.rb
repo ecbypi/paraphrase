@@ -26,21 +26,21 @@ module Paraphrase
       it "applies scope method to relation with values from params hash" do
         scope = build_account_scope
 
-        Account.should_receive(:name_like).with('Jon Snow')
+        expect(Account).to receive(:name_like).with('Jon Snow')
         scope.chain({ :name => 'Jon Snow' }, account_relation)
       end
 
       it "does nothing if values are missing" do
         scope = build_account_scope
 
-        Account.should_not_receive(:name_like)
+        expect(Account).not_to receive(:name_like)
         scope.chain({}, account_relation)
       end
 
       it "passes through blank values if scope has been whitelisted" do
         scope = build_account_scope(whitelist: true)
 
-        Account.should_receive(:name_like).with(nil)
+        expect(Account).to receive(:name_like).with(nil)
         scope.chain({}, account_relation)
       end
 
@@ -51,7 +51,7 @@ module Paraphrase
           whitelist: true
         )
 
-        Account.should_receive(:with_name_and_status).with('George', nil)
+        expect(Account).to receive(:with_name_and_status).with('George', nil)
 
         scope.chain({ name: 'George' }, account_relation)
       end
