@@ -20,6 +20,11 @@ module Paraphrase
       end
     end
 
+    after do
+      Post.delete_all
+      User.delete_all
+    end
+
     describe '#source' do
       it 'is determined via query class name' do
         PostQuery.new.relation.klass.should eq Post
@@ -55,34 +60,38 @@ module Paraphrase
       end
     end
 
-    describe "#results" do
-      it "loops through scope methods and applies them to source" do
-        Post.should_receive(:titled).and_call_original
-        Post.should_receive(:published)
+    it 'skips scopes if query params are missing' do
+      Post.should_not_receive(:titled)
+      Post.should_not_receive(:by_users)
+      Post.should_receive(:published)
 
-        query = PostQuery.new(:title => 'Cooking Eggs', :is_published => true)
-        query.results
-      end
+      PostQuery.new(
+        is_published: '1',
+        authors: [],
+        title: ['', {}]
+      )
+    end
 
-      it "skips scopes if the params for the scope are missing" do
-        Post.should_not_receive(:titled)
-        Post.should_not_receive(:published)
+    it 'preserves the original scope used to initialize the query' do
+      user = User.create!
+      blue_post = Post.create!(user: user, title: 'Blue', published: false)
+      red_post = Post.create!(user: user, title: 'Red', published: true)
+      green_post = Post.create!(title: 'Red', published: true)
 
-        query = PostQuery.new
-        query.results
-      end
+      query = PostQuery.new({ title: 'Red' }, user.posts.published)
 
-      it "preserves the relation passed in during initialization" do
-        user = User.create!
-        post = Post.create!(user: user, title: 'Red')
-        Post.create!(user: user, title: 'Blue')
-        Post.create!(title: 'Red')
+      query.should include red_post
+      query.should_not include blue_post
+      query.should_not include green_post
+    end
 
-        query = PostQuery.new({ :title => 'Red' }, user.posts)
-        results = query.results
+    it 'can have additional scopes chained' do
+      post = Post.create!(published: true, title: 'Red')
+      Post.create!(published: false, title: 'Red')
 
-        results.to_a.should eq [post]
-      end
+      query = PostQuery.new(title: 'Red').published
+
+      query.to_a.should eq [post]
     end
   end
 end

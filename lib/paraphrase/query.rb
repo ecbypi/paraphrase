@@ -10,8 +10,8 @@ module Paraphrase
     #   @return [Array<ScopeMapping>] mappings for query
     class_attribute :mappings, :_source, :instance_writer => false
 
-    # Delegate enumerable methods to results
-    delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :results
+    # Delegate enumerable methods to `relation`
+    delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :relation
 
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in mappings
@@ -55,7 +55,14 @@ module Paraphrase
       @params = params.with_indifferent_access.slice(*keys)
       scrub_params!
 
-      @relation = relation
+      ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source_name => source.name, :source => relation) do
+        @relation = mappings.inject(relation) do |query, scope|
+          query = scope.chain(params, query)
+
+          break [] if query.nil?
+          query
+        end
+      end
     end
 
     # Return an `ActiveRecord::Relation` corresponding to the source class
@@ -72,33 +79,16 @@ module Paraphrase
       end
     end
 
-    # Loops through {#mappings} and apply scope methods to {#relation}. If values
-    # are missing for a required key, an empty array is returned.
-    #
-    # @return [ActiveRecord::Relation, Array]
-    def results
-      return @results if @results
-
-      ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source_name => source.name, :source => relation) do
-        @results = mappings.inject(relation) do |query, scope|
-          query = scope.chain(params, query)
-
-          break [] if query.nil?
-          query
-        end
-      end
-    end
-
     def respond_to_missing?(name, include_private = false)
-      super || results.respond_to?(name, include_private)
+      super || relation.respond_to?(name, include_private)
     end
 
     protected
 
     def method_missing(name, *args, &block)
-      if results.respond_to?(name)
-        self.class.delegate name, :to => :results
-        results.send(name, *args, &block)
+      if relation.respond_to?(name)
+        self.class.delegate name, :to => :relation
+        relation.send(name, *args, &block)
       else
         super
       end
