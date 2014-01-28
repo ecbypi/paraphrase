@@ -52,9 +52,8 @@ module Paraphrase
     def initialize(params = {}, relation = source)
       keys = mappings.map(&:keys).flatten.map(&:to_s)
 
-      @params = HashWithIndifferentAccess.new(params)
-      @params.select! { |key, value| keys.include?(key) && value.present? }
-      @params.freeze
+      @params = params.with_indifferent_access.slice(*keys)
+      scrub_params!
 
       @relation = relation
     end
@@ -103,6 +102,27 @@ module Paraphrase
       else
         super
       end
+    end
+
+    private
+
+    def scrub_params!
+      params.delete_if { |key, value| scrub(value) }
+    end
+
+    def scrub(value)
+      value = case value
+      when Array
+        value.delete_if { |v| scrub(v) }
+      when Hash
+        value.delete_if { |k, v| scrub(v) }
+      when String
+        value.strip
+      else
+        value
+      end
+
+      value.blank?
     end
   end
 end

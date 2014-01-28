@@ -6,4 +6,8 @@ class Post < ActiveRecord::Base
   def self.published
     where(published: true)
   end
+
+  def self.by_users(names)
+    joins(:user).where(users: { name: names })
+  end
 end

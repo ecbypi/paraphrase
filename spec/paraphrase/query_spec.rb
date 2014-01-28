@@ -7,6 +7,7 @@ module Paraphrase
     class ::PostQuery < Paraphrase::Query
       map :titled, :to => :title
       map :published, :to => :is_published
+      map :by_users, :to => :authors
     end
 
     describe ".map" do
@@ -33,7 +34,7 @@ module Paraphrase
       end
     end
 
-    describe "on initialization" do
+    describe "#params" do
       it "filters out params not specified in mappings" do
         query = PostQuery.new(nickname: 'bill', title: 'william')
 
@@ -46,9 +47,10 @@ module Paraphrase
         query.params.should have_key 'title'
       end
 
-      it 'filters out blank values' do
-        query = PostQuery.new(title: '')
+      it 'recursively filters out blank values' do
+        query = PostQuery.new(title: { key: ['', { key: [] }, []] }, authors: ['', 'kevin', ['', {}], { key: [' '] }])
 
+        query.params[:authors].should eq ['kevin']
         query.params.should_not have_key :title
       end
     end
