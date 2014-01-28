@@ -18,6 +18,12 @@ RSpec.configure do |config|
       create_table :users, :force => true do
       end
 
+      create_table :posts, :force => true do |t|
+        t.string :title
+        t.boolean :published
+        t.references :user
+      end
+
       create_table :accounts, :force => true do |t|
         t.references :user
       end

@@ -1,83 +1,71 @@
 require 'spec_helper'
+require 'support/models/post'
+require 'support/models/user'
 
 module Paraphrase
   describe Query do
+    class ::PostQuery < Paraphrase::Query
+      map :titled, :to => :title
+      map :published, :to => :is_published
+    end
+
     describe ".map" do
-      subject { Class.new(Query) }
-
       it "adds information to Query.mappings" do
-        subject.map :name_like, :to => :name
-
-        subject.mappings.should_not be_empty
+        PostQuery.mappings.should_not be_empty
       end
 
       it "raises an error if a scope is added twice" do
-        subject.map :name_like, :to => :name
-
-        expect { subject.map :name_like, :to => :name }.to raise_error Paraphrase::DuplicateScopeError
+        expect { PostQuery.map :titled, :to => :name }.to raise_error Paraphrase::DuplicateScopeError
       end
     end
 
     describe "on initialization" do
-      let(:query) do
-        klass = Class.new(Query) do
-          map :name_like, :to => :name
-          map :email_like, :to => :email
-        end
-
-        klass.new({ :name => 'name', :nickname => '', :email => '' }, Account)
-      end
-
       it "filters out params not specified in mappings" do
+        query = PostQuery.new({ nickname: 'bill', title: 'william' }, Post)
+
         query.params.should_not have_key :nickname
-        query.params.should have_key :name
+        query.params.should have_key :title
       end
 
       it "sets up params with indifferent access" do
-        query.params.should have_key 'name'
+        query = PostQuery.new({ title: 'D3 How-To' }, Post)
+        query.params.should have_key 'title'
       end
 
       it 'filters out blank values' do
-        query.params.should_not have_key :email
+        query = PostQuery.new({ title: '' }, Post)
+
+        query.params.should_not have_key :title
       end
     end
 
     describe "#results" do
-      let(:klass) do
-        Class.new(Query) do
-          map :name_like, :to => :name
-          map :title_like, :to => :title, :require => true
-        end
-      end
-
       it "loops through scope methods and applies them to source" do
-        Account.should_receive(:title_like).and_return(Account)
-        Account.should_receive(:name_like).and_return(Account)
+        Post.should_receive(:titled).and_call_original
+        Post.should_receive(:published)
 
-        query = klass.new({ :name => 'Jon Snow', :title => 'Wall Watcher'}, Account)
+        query = PostQuery.new({ :title => 'Cooking Eggs', :is_published => true }, Post)
         query.results
       end
 
-      it "returns empty array if inputs were missing and required" do
-        query = klass.new({}, Account)
-        query.results.should eq []
+      it "skips scopes if the params for the scope are missing" do
+        Post.should_not_receive(:titled)
+        Post.should_not_receive(:published)
+
+        query = PostQuery.new({}, Post)
+        query.results
       end
-    end
 
-    describe "preserves" do
-      it "the relation passed in during initialization" do
-        klass = Class.new(Query) do
-          map :name_like, :to => :name
-        end
-
+      it "preserves the relation passed in during initialization" do
         user = User.create!
-        Account.create!(user: user)
-        Account.create!
+        post = Post.create!(user: user, title: 'Red')
+        Post.create!(user: user, title: 'Blue')
+        Post.create!(title: 'Red')
 
-        query = klass.new({ :name => 'name' }, Account.where(user_id: user.id))
+        query = PostQuery.new({ :title => 'Red' }, user.posts)
         results = query.results
 
-        results.to_a.should eq user.accounts.to_a
+        results.to_a.should eq [post]
       end
     end
   end
