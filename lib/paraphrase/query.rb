@@ -9,10 +9,10 @@ module Paraphrase
   class Query
     # @!attribute [r] scopes
     #   @return [Array<Scope>] scopes for query
-    class_attribute :scopes, :_source, :instance_writer => false
+    class_attribute :scopes, :_source, instance_writer: false
 
     # Delegate enumerable methods to `result`
-    delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :result
+    delegate :collect, :map, :each, :select, :to_a, :to_ary, to: :result
 
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
@@ -64,7 +64,7 @@ module Paraphrase
       @params = params.with_indifferent_access.slice(*keys)
       scrub_params!
 
-      ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source_name => source.name, :source => relation) do
+      ActiveSupport::Notifications.instrument('query.paraphrase', params: params, source_name: source.name, source: relation) do
         @result = scopes.inject(relation) do |r, scope|
           scope.chain(self, r)
         end
@@ -93,7 +93,7 @@ module Paraphrase
 
     def method_missing(name, *args, &block)
       if result.respond_to?(name)
-        self.class.delegate name, :to => :result
+        self.class.delegate name, to: :result
         result.send(name, *args, &block)
       else
         super

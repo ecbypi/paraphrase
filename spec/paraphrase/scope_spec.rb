@@ -18,7 +18,7 @@ module Paraphrase
         scope = build_account_scope
 
         expect(Account).to receive(:name_like).with('Jon Snow')
-        scope.chain({ :name => 'Jon Snow' }, Account)
+        scope.chain({ name: 'Jon Snow' }, Account)
       end
 
       it "does nothing if values are missing" do

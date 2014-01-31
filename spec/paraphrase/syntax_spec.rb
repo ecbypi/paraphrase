@@ -3,7 +3,7 @@ require 'spec_helper'
 module Paraphrase
   describe Syntax do
     class ::AccountQuery < Paraphrase::Query
-      map :name, :to => :named
+      map :name, to: :named
     end
 
     describe '.paraphrase' do

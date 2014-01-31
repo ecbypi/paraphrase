@@ -3,10 +3,10 @@ require 'spec_helper'
 module Paraphrase
   describe Query do
     class ::PostQuery < Paraphrase::Query
-      map :title, :to => :titled
-      map :is_published, :to => :published
-      map :authors, :to => :by_users
-      map :start_date, :end_date, :to => :published_between
+      map :title, to: :titled
+      map :is_published, to: :published
+      map :authors, to: :by_users
+      map :start_date, :end_date, to: :published_between
 
       def start_date
         @start_date ||= Time.parse(params[:start_date]) rescue nil
@@ -23,7 +23,7 @@ module Paraphrase
       end
 
       it "raises an error if a scope is added twice" do
-        expect { PostQuery.map :name, :to => :titled }.to raise_error Paraphrase::DuplicateScopeError
+        expect { PostQuery.map :name, to: :titled }.to raise_error Paraphrase::DuplicateScopeError
       end
 
       it 'defines readers for each key' do
