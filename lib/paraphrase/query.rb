@@ -11,15 +11,15 @@ module Paraphrase
     #   @return [Array<Scope>] scopes for query
     class_attribute :scopes, :_source, :instance_writer => false
 
-    # Delegate enumerable methods to `relation`
-    delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :relation
+    # Delegate enumerable methods to `result`
+    delegate :collect, :map, :each, :select, :to_a, :to_ary, :to => :result
 
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
     #
-    # @!attribute [r] relation
+    # @!attribute [r] result
     #   @return [ActiveRecord::Relation]
-    attr_reader :params, :relation
+    attr_reader :params, :result
 
     # Set `scopes` on inheritance to ensure they're unique per subclass
     def self.inherited(klass)
@@ -65,7 +65,7 @@ module Paraphrase
       scrub_params!
 
       ActiveSupport::Notifications.instrument('query.paraphrase', :params => params, :source_name => source.name, :source => relation) do
-        @relation = scopes.inject(relation) do |r, scope|
+        @result = scopes.inject(relation) do |r, scope|
           scope.chain(self, r)
         end
       end
@@ -86,15 +86,15 @@ module Paraphrase
     end
 
     def respond_to_missing?(name, include_private = false)
-      super || relation.respond_to?(name, include_private)
+      super || result.respond_to?(name, include_private)
     end
 
     protected
 
     def method_missing(name, *args, &block)
-      if relation.respond_to?(name)
-        self.class.delegate name, :to => :relation
-        relation.send(name, *args, &block)
+      if result.respond_to?(name)
+        self.class.delegate name, :to => :result
+        result.send(name, *args, &block)
       else
         super
       end

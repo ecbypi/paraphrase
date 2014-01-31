@@ -237,6 +237,7 @@ end
 class PostsController < ApplicationController
   def index
     @query = PostQuery.new(params[:q])
+    @posts = query.result
   end
 end
 ```
@@ -246,6 +247,10 @@ end
   <%= f.label :author %>
   <%= f.select :author, User.authors %>
 <% end %>
+
+<% @posts.each do -%>
+  ...
+<% end -%>
 ```
 
 ### Scrubbing Arrays

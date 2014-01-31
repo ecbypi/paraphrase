@@ -8,7 +8,7 @@ module Paraphrase
 
     describe '.paraphrase' do
       it "passes through results from an initialized query" do
-        expect_any_instance_of(AccountQuery).to receive(:relation).and_call_original
+        expect_any_instance_of(AccountQuery).to receive(:result).and_call_original
 
         result = Account.paraphrase
         expect(result).to eq Account

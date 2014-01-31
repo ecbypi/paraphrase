@@ -42,7 +42,7 @@ module Paraphrase
 
     describe '#source' do
       it 'is determined via query class name' do
-        expect(PostQuery.new.relation).to eq Post
+        expect(PostQuery.new.result).to eq Post
       end
 
       it 'can be manually specified in the class' do
@@ -50,7 +50,7 @@ module Paraphrase
           source :User
         end
 
-        expect(klass.new.relation).to eq User
+        expect(klass.new.result).to eq User
       end
     end
 
@@ -111,15 +111,6 @@ module Paraphrase
       expect(query).to include red_post
       expect(query).not_to include blue_post
       expect(query).not_to include green_post
-    end
-
-    it 'can have additional scopes chained' do
-      post = Post.create!(published: true, title: 'Red')
-      Post.create!(published: false, title: 'Red')
-
-      query = PostQuery.new(title: 'Red').published
-
-      expect(query.to_a).to eq [post]
     end
   end
 end

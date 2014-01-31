@@ -15,7 +15,7 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     def paraphrase(params = {})
-      paraphraser.new(params, self).relation
+      paraphraser.new(params, self).result
     end
   end
 
