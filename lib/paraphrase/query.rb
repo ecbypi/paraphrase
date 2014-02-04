@@ -4,9 +4,11 @@ require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/array/extract_options'
 require 'active_support/hash_with_indifferent_access'
+require 'paraphrase/active_model'
 
 module Paraphrase
   class Query
+    include ActiveModel
     # @!attribute [r] scopes
     #   @return [Array<Scope>] scopes for query
     class_attribute :scopes, :_source, instance_writer: false
