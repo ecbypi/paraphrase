@@ -1,0 +1,39 @@
+## 0.7.0 / 1-25-2014
+
+* Add Rails 4 support
+
+## 0.5.0 / 8-7-2012
+
+* Cleanup `ScopeMapping` class
+* Add ability to query from an existing `ActiveRecord::Relation` instance
+  (typically an association).
+* Update syntax for generating mappings.
+
+## 0.4.0 / 7-6-2012
+
+* Setup `Query#params` to be `HashWithIndifferentAccess`.
+* Gut out `Paraphrase` module methods. These were for use cases I had planned
+  for but have yet to encounter.
+* Model's query class is now stored on the model itself.
+
+## 0.3.2 / 7-5-2012
+
+* Cache `Query#results`
+* Setup `Query#method_missing` to proxy to `Query#results`
+* Setup `Query#respond_to?` to check `Query#results`
+
+## 0.3.1 / 7-5-2012
+
+* Fix for rails 3.0
+
+## 0.3.0 / 7-5-2012
+
+* Allow `nil` values to be passed to scoped using `:allow_nil` option.
+* Require/whitelist individual keys of a compound key.
+* Update `Paraphrase::Syntax.register_mapping` to update an existing mapping to
+avoid errors when a model class is reloaded during development.
+
+## 0.2.0 / 6-22-2012
+
+* Initial release
+
