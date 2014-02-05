@@ -30,10 +30,6 @@ class PostQuery < Paraphrase::Query
   map :author, to: :by_user
   map :start_date, :end_date, to: :published_within
 
-  def by_user
-    source.where(name: author)
-  end
-
   def start_date
     Time.zone.parse(params[:start_date])
   end
@@ -46,11 +42,6 @@ not `<model>Query`, the source can be manually specified by passing a string or
 symbol to the `source` method.
 
 ```ruby
-# app/queries/admin/post_query.rb
-class Admin::PostQuery < Paraphrase::Query
-  # this will correctly find the `Post` model
-end
-
 # app/queries/admin_post_query.rb
 class AdminPostQuery < Paraphrase::Query
   # This needs the source specific since it will look for an `AdminPost` model.
@@ -62,6 +53,12 @@ In the controller, call `.paraphrase` on your model, passing a hash of query
 params.  This will filter out the registered query params, calling the scopes
 whose inputs are supplied. If a query param for a scope is missing or empty,
 the scope is skipped.
+
+`Paraphrase::Query` will intelligently determine if the value of the query
+param is empty. If the value is an array containing empty strings, the empty
+strings will be removed before being passed to the scope. If the array is empty
+after removing empty strings, the scope will not be called since an empty array
+is considered a blank value.
 
 ```ruby
 class PostsController < ApplicationController
@@ -123,49 +120,33 @@ class Post < ActiveRecord::Base
 end
 ```
 
-If a scope is required for a query to be considered valid, add `require: true`
-or `require: [:array, :of, :keys]` in the options. If any values are missing,
-an empty result set will be returned. If multiple keys are mapped to the scope,
-you can specify a subset of the keys to be required. In this case, the rest of
-the attributes will be whitelisted.
+If multiple query params are mapped to a scope, but only a subset are required,
+use the `:whitelist` option to allow them to be missing. The `:whitelist`
+option can be set to `true`, an individual key or an array of keys.
 
 ```ruby
 class PostQuery < Paraphrase::Query
-  # requires :pub_date to be supplied
-  map :pub_date, to: :published_on, require: true
-
   # requires only :last_name to be passed in, :first_name can be nil
-  map :first_name, :last_name, to: :by_author, require: :last_name
+  map :first_name, :last_name, to: :by_author, whitelist: :last_name
 end
 
 class Post < ActiveRecord::Base
   def self.by_author(first_name, last_name)
-    query = where(user: { last_name: last_name })
+    query = where(user: { first_name: first_name })
 
-    if first_name
-      query.where(user: { first_name: first_name })
+    if last_name
+      query = query.where(user: { last_name: last_name })
     end
 
     query
   end
 end
 
-Post.paraphrase.to_a # => []
-Post.paraphrase(last_name: 'Smith').to_a # => [<#Post>]
-Post.paraphrase(first_name: 'John').to_a # => []
-```
+Post.paraphrase(first_name: 'John').to_sql
+  # => SELECT "posts".* FROM "posts" WHERE "posts"."first_name" = 'John'
 
-Alternatively, a scope or a subset of its keys can be whitelisted allowing the
-key to not be specified or blank. This is intended for scopes that alter their
-behavior conditionally on a parameter being present. You should whitelist
-inputs if you still want other scopes to be applied as requiring them will halt
-execution of scopes and return an empty result set.
-
-```ruby
-class PostQuery < Paraphrase::Query
-  # :first_name can be nil, :last_name is still required to apply the scope
-  map :by_author, to: [:first_name, :last_name], whitelist: :first_name
-end
+Post.paraphrase(first_name: 'John', last_name: 'Smith').to_sql
+  # => SELECT "posts".* FROM "posts" WHERE "posts"."first_name" = 'John' AND "posts"."last_name" = 'Smith'
 ```
 
 ### Boolean Scopes
@@ -189,6 +170,9 @@ class Post < ActiveRecord::Base
     where('published_at IS NOT NULL')
   end
 end
+
+Post.paraphrase(published: '1').to_sql
+  # => SELECT "posts".* FROM "posts" WHERE "posts"."published" = 't'
 ```
 
 ### Pre-processing Query Params
@@ -218,12 +202,13 @@ class Post < ActiveRecord::Base
   end
 end
 
-Post.parahrase(start_date: '201-03-21', end_date: '2013-03-25') # => will not apply `published_within`.
+Post.parahrase(start_date: '201-03-21', end_date: '2013-03-25').to_sql
+  # => SELECT "posts".* FROM "posts"
 ```
 
 In the above example, if either `:start_date` or `:end_date` are incorrectly
 formatted, the `pubished_within` scope will not be applied because the values
-are `nil`.
+are will be `nil`.
 
 ### Using with `FormBuilder`
 
@@ -243,36 +228,22 @@ end
 ```
 
 ```erb
-<%= form_for @query, url: posts_url do |f| %>
+<%= form_for @query, url: posts_url, method: :get do |f| %>
   <%= f.label :author %>
-  <%= f.select :author, User.authors %>
+  <%= f.select :author, options_from_collection_for_select(User.authors, :id, :name) %>
 <% end %>
 
-<% @posts.each do -%>
+<% @posts.each do |post| %>
   ...
-<% end -%>
+<% end %>
 ```
 
-### Scrubbing Arrays
+## Contributing
 
-`Paraphrase::Query` will intelligently determine if the value of the query
-param is empty. If the value is an array containing empty strings, the empty
-strings will be removed before being passed to the scope. If the array is empty
-after removing empty strings, the scope will not be called since an empty array
-is considered a blank value.
+Contributions welcome. Be sure to include tests for any regressions or features.
 
-### ActiveSupport::Notifications
-
-You can subscribe to notifications when the query is applied.
-
-```ruby
-ActiveSupport::Notifications.subscribe('query.paraphrase') do |name, start, end, id, payload|
-  # ...
-end
-```
-
-`payload` contains:
-
-* `:params`: the params filtered
-* `:source_name`: name of the class being queried
-* `:source`: `ActiveRecord::Relation` being used as the base for the query
+1. Fork it ( http://github.com/[my-github-username]/paraphrase/fork )
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature with tests'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
