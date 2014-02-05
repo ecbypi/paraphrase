@@ -1,7 +1,7 @@
 PATH
   remote: /Users/edd_d/Work/paraphrase
   specs:
-    paraphrase (0.7.0)
+    paraphrase (0.8.0)
       activemodel (>= 3.0, < 4.1)
       activerecord (>= 3.0, < 4.1)
       activesupport (>= 3.0, < 4.1)
