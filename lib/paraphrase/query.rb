@@ -63,10 +63,8 @@ module Paraphrase
       @params = params.with_indifferent_access.slice(*keys)
       scrub_params!
 
-      ActiveSupport::Notifications.instrument('query.paraphrase', params: params, source_name: source.name, source: relation) do
-        @result = scopes.inject(relation) do |r, scope|
-          scope.chain(self, r)
-        end
+      @result = scopes.inject(relation) do |r, scope|
+        scope.chain(self, r)
       end
     end
 
