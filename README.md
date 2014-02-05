@@ -1,6 +1,7 @@
 # paraphrase
 
 [![Code Climate](https://codeclimate.com/github/ecbypi/paraphrase.png)](https://codeclimate.com/github/ecbypi/paraphrase)
+[![Build Status](https://travis-ci.org/ecbypi/paraphrase.png?branch=master)](https://travis-ci.org/ecbypi/paraphrase)
 
 Paraphrase provides a way to map query params to model scopes and
 only apply scopes when the mapped query params are present.
