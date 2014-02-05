@@ -107,11 +107,11 @@ module Paraphrase
       red_post = Post.create!(user: user, title: 'Red', published: true)
       green_post = Post.create!(title: 'Red', published: true)
 
-      query = PostQuery.new({ title: 'Red' }, user.posts.published)
+      result = PostQuery.new({ title: 'Red' }, user.posts.published).result
 
-      expect(query).to include red_post
-      expect(query).not_to include blue_post
-      expect(query).not_to include green_post
+      expect(result).to include red_post
+      expect(result).not_to include blue_post
+      expect(result).not_to include green_post
     end
 
     describe 'is action view compliant' do

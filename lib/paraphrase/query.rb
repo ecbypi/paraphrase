@@ -13,9 +13,6 @@ module Paraphrase
     #   @return [Array<Scope>] scopes for query
     class_attribute :scopes, :_source, instance_writer: false
 
-    # Delegate enumerable methods to `result`
-    delegate :collect, :map, :each, :select, :to_a, :to_ary, to: :result
-
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
     #
@@ -84,21 +81,6 @@ module Paraphrase
       @source ||= begin
         name = _source || self.class.to_s.sub(/Query$/, '')
         name.constantize
-      end
-    end
-
-    def respond_to_missing?(name, include_private = false)
-      super || result.respond_to?(name, include_private)
-    end
-
-    protected
-
-    def method_missing(name, *args, &block)
-      if result.respond_to?(name)
-        self.class.delegate name, to: :result
-        result.send(name, *args, &block)
-      else
-        super
       end
     end
 
