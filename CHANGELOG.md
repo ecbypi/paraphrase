@@ -1,3 +1,17 @@
+## 0.8.0 / 2-5-2014
+
+* Remove `ActiveSupport::Notifications`
+* Remove delegation to `Query#results`
+* Rename `Query#results` to `Query#result`
+* Add support for use with form builders
+* Remove `:require` option in `map`
+* Change method signature of `map`. Now accepts a list of keys followed by a
+  hash of options. the `:to` option points to the name of the scope that should
+  be called with the values of the supplied keys.
+* Determine the name of the source ActiveRecord::Base sublcass from the name of
+  the query class
+* Remove `register_mapping` method added to `ActiveRecord::Base`.
+
 ## 0.7.0 / 1-25-2014
 
 * Add Rails 4 support
