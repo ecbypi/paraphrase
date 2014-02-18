@@ -60,8 +60,8 @@ module Paraphrase
     def initialize(params = {}, relation = source)
       @params = scrub_params(params)
 
-      @result = scopes.inject(relation) do |r, scope|
-        scope.chain(self, r)
+      @result = scopes.inject(relation) do |result, scope|
+        scope.chain(self, result)
       end
     end
 
