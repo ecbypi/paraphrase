@@ -58,10 +58,7 @@ module Paraphrase
     # @param [Hash] params query parameters
     # @param [ActiveRecord::Relation] relation object to apply methods to
     def initialize(params = {}, relation = source)
-      keys = scopes.map(&:keys).flatten.map(&:to_s)
-
-      @params = params.with_indifferent_access.slice(*keys)
-      scrub_params!
+      @params = scrub_params(params)
 
       @result = scopes.inject(relation) do |r, scope|
         scope.chain(self, r)
@@ -82,10 +79,18 @@ module Paraphrase
       end
     end
 
+    # Keys used in the query
+    #
+    # @return [Array<Symbol>]
+    def keys
+      scopes.flat_map(&:keys)
+    end
+
     private
 
-    def scrub_params!
+    def scrub_params(params)
       params.delete_if { |key, value| scrub(value) }
+      params.with_indifferent_access.slice(*keys)
     end
 
     def scrub(value)
