@@ -30,10 +30,6 @@ be applied to which scopes.
 class PostQuery < Paraphrase::Query
   map :author, to: :by_user
   map :start_date, :end_date, to: :published_within
-
-  def start_date
-    Time.zone.parse(params[:start_date])
-  end
 end
 ```
 
@@ -50,16 +46,16 @@ class AdminPostQuery < Paraphrase::Query
 end
 ```
 
-In the controller, call `.paraphrase` on your model, passing a hash of query
-params.  This will filter out the registered query params, calling the scopes
-whose inputs are supplied. If a query param for a scope is missing or empty,
-the scope is skipped.
+To build the query, call `.paraphrase` on your model.  Only scopes whose keys are all
+provided will be applied.
 
-`Paraphrase::Query` will intelligently determine if the value of the query
-param is empty. If the value is an array containing empty strings, the empty
-strings will be removed before being passed to the scope. If the array is empty
-after removing empty strings, the scope will not be called since an empty array
-is considered a blank value.
+```ruby
+# Based on the example `PostQuery` above, this will only apply `Post.by_user`
+# and skip `Post.published_within` since `:end_date` is missing.
+Post.paraphrase(author: 'Jim')
+```
+
+All unregistered keys are filered out of the params that are passed to `.paraphrase`.
 
 ```ruby
 class PostsController < ApplicationController
@@ -71,6 +67,30 @@ class PostsController < ApplicationController
     respond_with(@posts)
   end
 end
+```
+
+`Paraphrase::Query` will recursively determine if the value of the query
+param is empty. If the value is an array containing empty strings, the empty
+strings will be removed before being passed to the scope. If the array is empty
+after removing empty strings, the scope will not be called since an empty array
+is considered a blank value.
+
+```ruby
+class UserQuery < Paraphrase::Query
+  map :names, to: :with_name
+end
+
+class User < ActiveRecord::Base
+  def self.with_name(names)
+    where(name: names)
+  end
+end
+
+User.paraphrase(names: ['', 'Jim']).to_sql
+# => SELECT "users".* FROM "users" WHERE "users"."name" IN ['Jim']
+
+User.paraphrase(names: ['', '']).to_sql
+# => SELECT "users".* FROM "users"
 ```
 
 You can chain queries on an `ActiveRecord::Relation`. This avoids adding scopes
@@ -101,8 +121,7 @@ end
 
 ### Query Class DSL
 
-Scopes are mapped to param keys using the `map` class method provided by
-`Paraphrase::Query`.  You can specify one or more keys.
+Scopes are mapped to param keys using `map`.  You can specify one or more keys.
 
 ```ruby
 class PostQuery < Paraphrase::Query
@@ -122,7 +141,7 @@ end
 ```
 
 If multiple query params are mapped to a scope, but only a subset are required,
-use the `:whitelist` option to allow them to be missing. The `:whitelist`
+use the `:whitelist` option to allow them to be blank. The `:whitelist`
 option can be set to `true`, an individual key or an array of keys.
 
 ```ruby
@@ -152,12 +171,11 @@ Post.paraphrase(first_name: 'John', last_name: 'Smith').to_sql
 
 ### Boolean Scopes
 
-Some filter records based on a boolean column. It doesn't make sense for these
-methods to take any arguments.
+For scopes that filter records based on a boolean column, it doesn't make to
+force the scope to take an argument.
 
-Paraphrase will detect if the method specified takes no arguments.  If not, it
-will call the method without any arguments, assuming the inputs are present and
-valid.
+If the mapped query params are present and a scope takes no arguments,
+`paraphrase` will not attempt to pass those values to the query.
 
 ```ruby
 class PostQuery < Paraphrase::Query
@@ -179,8 +197,7 @@ Post.paraphrase(published: '1').to_sql
 ### Pre-processing Query Params
 
 By default, for each query param specified that maps to a model scope, a method
-is defined on the query class that fetches the value for that key. This is used
-internally to determine if model scopes need to be applied. To pre-process a
+is defined on the query class that fetches the value for that key. To pre-process a
 query param, such as an ISO formatted date, override the method in the query
 class.
 
