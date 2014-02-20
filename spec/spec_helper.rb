@@ -3,6 +3,10 @@ require 'pry'
 require 'paraphrase'
 require 'active_record'
 
+RSpec.configure do |config|
+  config.order = 'random'
+end
+
 I18n.enforce_available_locales = false
 
 ActiveRecord::Base.establish_connection(
