@@ -35,6 +35,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rake', '~> 0.9.2'
   gem.add_development_dependency 'appraisal', '~> 0.4'
   gem.add_development_dependency 'pry', '~> 0.9'
+  gem.add_development_dependency 'codeclimate-test-reporter', '~> 0.3'
 
   if RUBY_PLATFORM == 'java'
     gem.add_development_dependency 'activerecord-jdbcsqlite3-adapter'

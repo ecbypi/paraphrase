@@ -13,3 +13,5 @@ script: 'bundle exec rake'
 matrix:
   allow_failures:
     - rvm: jruby-19mode
+env:
+  secure: "VylP1haJogwCq04GRrM3hVfNT4YJiZ4RJoklOQLgqPMRalOCzVPOIRoTz3qpVbdQHf3l18VhVDrDbu2W2qfBKJq7/anIuYYgPd0uRAGliZD4h5B2PgQDqvPeTEftj/g3IYDh6PvZCuhgnxMdldmSnxd9WAjAnkLtjoiLgE6elCE="
