@@ -5,6 +5,7 @@ require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/array/extract_options'
 require 'active_support/hash_with_indifferent_access'
 require 'paraphrase/active_model'
+require 'paraphrase/params'
 
 module Paraphrase
   class Query
@@ -12,6 +13,7 @@ module Paraphrase
     # @!attribute [r] scopes
     #   @return [Array<Scope>] scopes for query
     class_attribute :scopes, :_source, instance_writer: false
+    class_attribute :_param_processor, instance_writer: false, instance_reader: false
 
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
@@ -31,6 +33,15 @@ module Paraphrase
     # @param [String, Symbol] name name of the source class
     def self.source(name)
       self._source = name.to_s
+    end
+
+    # Returns the class for processing and filtering query params.
+    def self.param_processor
+      self._param_processor ||= begin
+        self::Params
+      rescue NameError
+        Paraphrase::Params
+      end
     end
 
     # Add a {Scope} instance to {Query#scopes}. Defines a reader for each key
@@ -58,14 +69,12 @@ module Paraphrase
     # @param [Hash] params query parameters
     # @param [ActiveRecord::Relation] relation object to apply methods to
     def initialize(params = {}, relation = source)
-      @params = scrub_params(params)
+      @params = process_params(params)
 
       @result = scopes.inject(relation) do |result, scope|
-        scope.chain(self, result)
+        scope.chain(@params, result)
       end
     end
-
-    alias :[] :send
 
     # Return an `ActiveRecord::Relation` corresponding to the source class
     # determined from the `_source` class attribute or the name of the query
@@ -88,24 +97,8 @@ module Paraphrase
 
     private
 
-    def scrub_params(params)
-      params.delete_if { |key, value| scrub(value) }
-      params.with_indifferent_access.slice(*keys)
-    end
-
-    def scrub(value)
-      value = case value
-      when Array
-        value.delete_if { |v| scrub(v) }
-      when Hash
-        value.delete_if { |k, v| scrub(v) }
-      when String
-        value.strip
-      else
-        value
-      end
-
-      value.blank?
+    def process_params(params)
+      self.class.param_processor.new(params, keys).result
     end
   end
 end

@@ -9,12 +9,14 @@ module Paraphrase
       map :authors, to: :by_users
       map :start_date, :end_date, to: :published_between
 
-      def start_date
-        @start_date ||= Time.parse(params[:start_date]) rescue nil
-      end
+      class Params < Paraphrase::Params
+        def start_date
+          @start_date ||= Time.parse(params[:start_date]) rescue nil
+        end
 
-      def end_date
-        @end_date ||= Time.parse(params[:end_date]) rescue nil
+        def end_date
+          @end_date ||= Time.parse(params[:end_date]) rescue nil
+        end
       end
     end
 
@@ -52,16 +54,6 @@ module Paraphrase
         end
 
         expect(klass.new.result).to eq User
-      end
-    end
-
-    describe '#[]' do
-      it 'retreives values from #params or uses custom reader if defined' do
-        query = PostQuery.new(title: 'Morning Joe', start_date: '2010-10-30', end_date: 'foo')
-
-        expect(query[:title]).to eq 'Morning Joe'
-        expect(query[:start_date]).to eq Time.local(2010, 10, 30)
-        expect(query[:end_date]).to be_nil
       end
     end
 

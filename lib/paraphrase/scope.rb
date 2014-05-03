@@ -37,15 +37,15 @@ module Paraphrase
     # @param [Paraphrase::Query] query instance of {Query} class
     # @param [ActiveRecord::Relation] relation scope chain
     # @return [ActiveRecord::Relation]
-    def chain(query, relation)
-      if required_keys.all? { |key| query[key] }
+    def chain(params, relation)
+      if required_keys.all? { |key| params[key] }
         klass = relation.respond_to?(:klass) ? relation.klass : relation
         arity = klass.method(name).arity
 
         if arity == 0
           relation.send(name)
         else
-          values = keys.map { |key| query[key] }
+          values = keys.map { |key| params[key] }
           relation.send(name, *values)
         end
       else

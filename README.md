@@ -205,12 +205,14 @@ class.
 class PostQuery < Paraphrase::Query
   map :start_date, :end_date, to: :published_within
 
-  def start_date
-    @start_date ||= Time.zone.parse(params[:start_date]) rescue nil
-  end
+  class Params < Paraphrase::Params
+    def start_date
+      @start_date ||= Time.zone.parse(params[:start_date]) rescue nil
+    end
 
-  def end_date
-    @start_date ||= Time.zone.parse(params[:end_date]) rescue nil
+    def end_date
+      @start_date ||= Time.zone.parse(params[:end_date]) rescue nil
+    end
   end
 end
 
