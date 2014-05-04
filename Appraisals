@@ -21,3 +21,9 @@ appraise '4.0' do
   gem 'activesupport', '~> 4.0'
   gem 'actionpack', '~> 4.0'
 end
+
+appraise '4.1' do
+  gem 'activerecord', '~> 4.1'
+  gem 'activesupport', '~> 4.1'
+  gem 'actionpack', '~> 4.1'
+end
