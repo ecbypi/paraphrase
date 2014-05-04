@@ -59,7 +59,7 @@ module Paraphrase
       scopes << Scope.new(keys, options)
 
       keys.each do |key|
-        define_method(key) { params[key] } unless method_defined?(key)
+        define_method(key) { params[key] }
       end
     end
 
