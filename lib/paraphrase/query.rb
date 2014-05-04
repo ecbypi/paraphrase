@@ -13,7 +13,6 @@ module Paraphrase
     # @!attribute [r] scopes
     #   @return [Array<Scope>] scopes for query
     class_attribute :scopes, :_source, instance_writer: false
-    class_attribute :_param_processor, instance_writer: false, instance_reader: false
 
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
@@ -37,11 +36,9 @@ module Paraphrase
 
     # Returns the class for processing and filtering query params.
     def self.param_processor
-      self._param_processor ||= begin
-        self::Params
-      rescue NameError
-        Paraphrase::Params
-      end
+      self::Params
+    rescue NameError
+      Paraphrase::Params
     end
 
     # Add a {Scope} instance to {Query#scopes}. Defines a reader for each key
