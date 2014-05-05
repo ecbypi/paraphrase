@@ -34,6 +34,13 @@ module Paraphrase
       self._source = name.to_s
     end
 
+    # Keys being mapped to scopes
+    #
+    # @return [Array<Symbol>]
+    def self.keys
+      scopes.flat_map(&:keys)
+    end
+
     # Returns the class for processing and filtering query params.
     def self.param_processor
       self::Params
@@ -85,11 +92,9 @@ module Paraphrase
       end
     end
 
-    # Keys used in the query
-    #
-    # @return [Array<Symbol>]
+    # @see Query.keys
     def keys
-      scopes.flat_map(&:keys)
+      self.class.keys
     end
 
     private
