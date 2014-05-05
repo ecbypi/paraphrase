@@ -1,3 +1,9 @@
+## 0.9.0
+
+* Define methods to process query params on a subclass of `Paraphrase::Params`
+  that also handles filtering blank query params.
+* `Query.keys` and `Query#keys` expose the keys that have been mapped.
+
 ## 0.8.0 / 2-5-2014
 
 * Remove `ActiveSupport::Notifications`
