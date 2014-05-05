@@ -15,7 +15,7 @@ module Paraphrase
     class_attribute :scopes, :_source, instance_writer: false
 
     # @!attribute [r] params
-    #   @return [HashWithIndifferentAccess] filters parameters based on keys defined in scopes
+    #   @return [HashWithIndifferentAccess] filtered parameters based on keys defined in scopes
     #
     # @!attribute [r] result
     #   @return [ActiveRecord::Relation]
