@@ -13,11 +13,11 @@ module Paraphrase
     #   @return [Array<Symbol>] keys required for query
     attr_reader :keys, :name, :required_keys
 
-    # @param [Symbol] name name of the scope
+    # @param [Symbol] keys query params to be mapped to the scope
     # @param [Hash] options options to configure {Scope Scope} instance
-    # @option options [Symbol, Array<Symbol>] :to param key(s) to extract values from
-    # @option options [true, Symbol, Array<Symbol>] :require lists all or a
-    #   subset of param keys as required
+    # @option options [Symbol, Array<Symbol>] :to scope to map query params to
+    # @option options [true, Symbol, Array<Symbol>] :whitelist lists all or a
+    #   subset of param keys as optional
     def initialize(keys, options)
       @keys = keys
       @name = options[:to]
@@ -34,7 +34,7 @@ module Paraphrase
     # values are missing.  Detects if the scope takes no arguments to determine
     # if values should be passed to the scope.
     #
-    # @param [Paraphrase::Query] query instance of {Query} class
+    # @param [Hash] params filtered params from the query
     # @param [ActiveRecord::Relation] relation scope chain
     # @return [ActiveRecord::Relation]
     def chain(params, relation)
