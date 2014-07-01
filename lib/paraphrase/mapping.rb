@@ -17,19 +17,12 @@ module Paraphrase
       end
     end
 
-    def chain(params, relation)
-      if required_keys.all? { |key| params[key] }
-        arity = relation.klass.method(name).arity
+    def satisfied?(params)
+      required_keys.all? { |key| params[key] }
+    end
 
-        if arity == 0
-          relation.send(name)
-        else
-          values = keys.map { |key| params[key] }
-          relation.send(name, *values)
-        end
-      else
-        relation
-      end
+    def values(params)
+      keys.map { |key| params[key] }
     end
   end
 end

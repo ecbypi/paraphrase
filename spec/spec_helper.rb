@@ -21,7 +21,8 @@ ActiveRecord::Base.establish_connection(
 
 ActiveRecord::Migration.verbose = false
 ActiveRecord::Schema.define do
-  create_table :users, force: true do
+  create_table :users, force: true do |t|
+    t.string :name
   end
 
   create_table :posts, force: true do |t|
@@ -55,10 +56,6 @@ class Post < ActiveRecord::Base
 
   def self.by_users(names)
     joins(:user).where(users: { name: names })
-  end
-
-  def self.published_between(start_date, end_date)
-    where(published_at: start_date..end_date)
   end
 end
 

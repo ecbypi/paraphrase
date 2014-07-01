@@ -6,6 +6,7 @@ require 'active_support/core_ext/array/extract_options'
 require 'active_support/hash_with_indifferent_access'
 require 'paraphrase/active_model'
 require 'paraphrase/params_filter'
+require 'paraphrase/repository'
 
 module Paraphrase
   class Query
@@ -18,6 +19,7 @@ module Paraphrase
     class_attribute :mappings, instance_writer: false
     class_attribute :source, instance_writer: false, instance_reader: false
     class_attribute :params_filter, instance_writer: false
+    class_attribute :repository, instance_writer: false
 
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filtered parameters based on keys defined in `mappings`
@@ -33,6 +35,9 @@ module Paraphrase
 
       klass.params_filter = Class.new(Paraphrase::ParamsFilter)
       klass.const_set(:ParamsFilter, klass.params_filter)
+
+      klass.repository = Class.new(Paraphrase::Repository)
+      klass.const_set(:Repository, klass.repository)
     end
 
     # Keys being mapped to scopes
@@ -78,6 +83,13 @@ module Paraphrase
       end
     end
 
+    # Define a scope on `Repository`
+    def self.scope(scope_name, &block)
+      repository.class_eval do
+        define_method(scope_name, &block)
+      end
+    end
+
     # Filters out parameters irrelevant to the query and sets the base scope
     # for to begin the chain.
     #
@@ -88,7 +100,7 @@ module Paraphrase
       @params = filter_params(params)
 
       @result = mappings.inject(relation) do |result, mapping|
-        mapping.chain(@params, result)
+        repository.chain(result, mapping, @params)
       end
     end
 

@@ -15,8 +15,18 @@ module Paraphrase
         end
       end
 
+      class Repository
+        def published_between(start_date, end_date)
+          where(published_at: start_date..end_date)
+        end
+      end
+
       param :end_date do
         Time.parse(params[:end_date]) rescue nil
+      end
+
+      scope :by_users do |authors|
+        relation.joins(:user).where(users: { name: authors })
       end
     end
 
@@ -91,6 +101,25 @@ module Paraphrase
         authors: [],
         title: ['', {}]
       )
+    end
+
+    it 'supports defining scopes in the query class' do
+      robert = User.create!(name: 'Robert')
+      frank = User.create!(name: 'Frank')
+      susie = User.create!(name: 'Susie')
+
+      # Combination of all three attributes ensures that the scope is preserved
+      # before and after the call to the method on the query class
+      Post.create!(title: 'Summer', published: false, user: robert)
+      Post.create!(title: 'Summer', published: true, user: frank)
+      susie_post = Post.create!(title: 'Summer', published: true, user: susie)
+
+      params = { authors: ['Robert', 'Susie'], title: 'Summer', is_published: '1' }
+      query = PostQuery.new(params)
+      result = Post.paraphrase(params)
+
+      expect(query.result).to eq [susie_post]
+      expect(result).to eq [susie_post]
     end
 
     it 'preserves the original scope used to initialize the query' do

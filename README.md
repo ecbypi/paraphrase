@@ -233,6 +233,44 @@ In the above example, if either `:start_date` or `:end_date` are incorrectly
 formatted, the `pubished_within` scope will not be applied because the values
 are will be `nil`.
 
+### Define scopes on the `Query` class
+
+If your model is cluttered with scopes that aren't general-purpose, and only
+used by your query class, you can define them in the query class. You can
+define scopes by re-opening the `Repository` class defined on inheritance from
+`Paraphrase::Query`. There is also the `scope` class method that serves as a
+proxy for defining methods on the `Repository` class.
+
+In the method, you have to call the scope on the `relation` property of the
+`Repository` instance.
+
+```ruby
+class PostQuery < Paraphrase::Query
+  map :title, to: :titled
+  map :authors, to: :by_users
+  map :is_published, to: :published
+
+  scope :by_users do |authors|
+    relation.joins(:user).where(users: { name: authors })
+  end
+
+  # OR
+  # class Repository
+  #   def by_users(authors)
+  #     relation.joins(:user).where(users: { name: authors })
+  #   end
+  # end
+end
+
+class Post < ActiveRecord::Base
+end
+
+Post.paraphrase(authors: ['Robert', 'Susie']).to_sql
+# => SELECT "posts".* FROM "posts"
+#    INNER JOIN "users" ON "users"."id" = "posts"."user_id"
+#    WHERE "users"."name" IN ('Robert', 'Susie')
+```
+
 ### Using with `FormBuilder`
 
 The `Paraphrase::Query` class implements the `ActiveModel` API required for use
