@@ -232,7 +232,8 @@ are will be `nil`.
 
 ### Using with `FormBuilder`
 
-The `Paraphrase::Query` class implements the `ActiveModel` API required for use with form builders.
+The `Paraphrase::Query` class implements the `ActiveModel` API required for use
+with form builders.
 
 ```ruby
 class PostQuery < Paraphrase::Query
