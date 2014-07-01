@@ -38,6 +38,7 @@ ActiveRecord::Schema.define do
   end
 end
 
+require 'paraphrase/syntax'
 ActiveRecord::Base.extend Paraphrase::Syntax
 
 class User < ActiveRecord::Base
