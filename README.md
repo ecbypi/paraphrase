@@ -196,23 +196,26 @@ Post.paraphrase(published: '1').to_sql
 
 ### Pre-processing Query Params
 
-By default, for each query param specified that maps to a model scope, a method
-is defined on the query class that fetches the value for that key. To pre-process a
-query param, such as an ISO formatted date, override the method in the query
-class.
+To pre-process a query param, such as an ISO formatted date, you can either use
+the `param` class method or re-open the `ParamsFilter` class that is defined
+when inheriting from `Paraphrase::Query`. Using the `param` class method
+defines the equivalent method on the `ParamsFilter` class.
+
+In the method, you have access to the `params` attribute that represents the
+original, unprocessed params.
 
 ```ruby
 class PostQuery < Paraphrase::Query
   map :start_date, :end_date, to: :published_within
 
-  class Params < Paraphrase::Params
+  class ParamsFilter
     def start_date
-      @start_date ||= Time.zone.parse(params[:start_date]) rescue nil
+      Time.zone.parse(params[:start_date]) rescue nil
     end
+  end
 
-    def end_date
-      @start_date ||= Time.zone.parse(params[:end_date]) rescue nil
-    end
+  param :end_date do
+    Time.zone.parse(params[:end_date]) rescue nil
   end
 end
 

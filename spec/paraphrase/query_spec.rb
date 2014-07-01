@@ -9,14 +9,14 @@ module Paraphrase
       map :authors, to: :by_users
       map :start_date, :end_date, to: :published_between
 
-      class Params < Paraphrase::Params
+      class ParamsFilter
         def start_date
-          @start_date ||= Time.parse(params[:start_date]) rescue nil
+          Time.parse(params[:start_date]) rescue nil
         end
+      end
 
-        def end_date
-          @end_date ||= Time.parse(params[:end_date]) rescue nil
-        end
+      param :end_date do
+        Time.parse(params[:end_date]) rescue nil
       end
     end
 

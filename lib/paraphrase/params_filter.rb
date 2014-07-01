@@ -1,5 +1,5 @@
 module Paraphrase
-  class Params
+  class ParamsFilter
     attr_reader :params, :result
 
     def initialize(params, keys)

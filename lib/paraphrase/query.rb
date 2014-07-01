@@ -5,7 +5,7 @@ require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/array/extract_options'
 require 'active_support/hash_with_indifferent_access'
 require 'paraphrase/active_model'
-require 'paraphrase/params'
+require 'paraphrase/params_filter'
 
 module Paraphrase
   class Query
@@ -17,6 +17,7 @@ module Paraphrase
     #   query
     class_attribute :mappings, instance_writer: false
     class_attribute :source, instance_writer: false, instance_reader: false
+    class_attribute :params_filter, instance_writer: false
 
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filtered parameters based on keys defined in `mappings`
@@ -29,6 +30,9 @@ module Paraphrase
     def self.inherited(klass)
       klass.mappings = []
       klass.source = klass.to_s.sub(/Query$/, '')
+
+      klass.params_filter = Class.new(Paraphrase::ParamsFilter)
+      klass.const_set(:ParamsFilter, klass.params_filter)
     end
 
     # Keys being mapped to scopes
@@ -36,13 +40,6 @@ module Paraphrase
     # @return [Array<Symbol>]
     def self.keys
       mappings.flat_map(&:keys)
-    end
-
-    # Returns the class for processing and filtering query params.
-    def self.param_processor
-      self::Params
-    rescue NameError
-      Paraphrase::Params
     end
 
     # Add a {Mapping} instance to {Query#mappings}. Defines a reader for each
@@ -70,6 +67,17 @@ module Paraphrase
       end
     end
 
+    # Define a method on `ParamsFilter` to process the raw value of the query
+    # param
+    #
+    # @param [Symbol] query_param query param to process
+    # @param [Proc] block block to process the query param
+    def self.param(query_param, &block)
+      params_filter.class_eval do
+        define_method(query_param, &block)
+      end
+    end
+
     # Filters out parameters irrelevant to the query and sets the base scope
     # for to begin the chain.
     #
@@ -77,7 +85,7 @@ module Paraphrase
     # @param [ActiveRecord::Relation] relation object to apply methods to
     def initialize(params = {}, relation = nil)
       relation ||= default_relation
-      @params = process_params(params)
+      @params = filter_params(params)
 
       @result = mappings.inject(relation) do |result, mapping|
         mapping.chain(@params, result)
@@ -101,8 +109,8 @@ module Paraphrase
 
     private
 
-    def process_params(params)
-      self.class.param_processor.new(params, keys).result
+    def filter_params(params)
+      params_filter.new(params, keys).result
     end
   end
 end
