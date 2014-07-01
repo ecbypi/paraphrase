@@ -10,24 +10,24 @@ require 'paraphrase/params'
 module Paraphrase
   class Query
     include ActiveModel
-    # @!attribute [r] scopes
-    #   @return [Array<Scope>] scopes for query
+    # @!attribute [r] mappings
+    #   @return [Array<Paraphrase::Mapping>] mappings for query
     # @!attribute [r] source
     #   @return [Symbol, String] name of the class to use as the source for the
     #   query
-    class_attribute :scopes, instance_writer: false
+    class_attribute :mappings, instance_writer: false
     class_attribute :source, instance_writer: false, instance_reader: false
 
     # @!attribute [r] params
-    #   @return [HashWithIndifferentAccess] filtered parameters based on keys defined in scopes
+    #   @return [HashWithIndifferentAccess] filtered parameters based on keys defined in `mappings`
     #
     # @!attribute [r] result
     #   @return [ActiveRecord::Relation]
     attr_reader :params, :result
 
-    # Set `scopes` on inheritance to ensure they're unique per subclass
+    # Set `mappings` on inheritance to ensure they're unique per subclass
     def self.inherited(klass)
-      klass.scopes = []
+      klass.mappings = []
       klass.source = klass.to_s.sub(/Query$/, '')
     end
 
@@ -35,7 +35,7 @@ module Paraphrase
     #
     # @return [Array<Symbol>]
     def self.keys
-      scopes.flat_map(&:keys)
+      mappings.flat_map(&:keys)
     end
 
     # Returns the class for processing and filtering query params.
@@ -45,19 +45,25 @@ module Paraphrase
       Paraphrase::Params
     end
 
-    # Add a {Scope} instance to {Query#scopes}. Defines a reader for each key
-    # to read from {Query#params}.
+    # Add a {Mapping} instance to {Query#mappings}. Defines a reader for each
+    # key to read from {Query#params}.
     #
-    # @see Scope#initialize
+    # @overload map(*keys, options)
+    #   Maps a key to a scope
+    #   @param [Array<Symbol>] keys query params to be mapped to the scope
+    #   @param [Hash] options options to configure {Mapping Mapping} instance
+    #   @option options [Symbol, Array<Symbol>] :to scope to map query params to
+    #   @option options [true, Symbol, Array<Symbol>] :whitelist lists all or a
+    #     subset of param keys as optional
     def self.map(*keys)
       options = keys.extract_options!
       scope_name = options[:to]
 
-      if scopes.any? { |scope| scope.name == scope_name }
-        raise DuplicateScopeError, "scope :#{scope_name} has already been mapped"
+      if mappings.any? { |mapping| mapping.name == scope_name }
+        raise DuplicateMappingError, "scope :#{scope_name} has already been mapped"
       end
 
-      scopes << Scope.new(keys, options)
+      mappings << Mapping.new(keys, options)
 
       keys.each do |key|
         define_method(key) { params[key] }
@@ -73,8 +79,8 @@ module Paraphrase
       relation ||= default_relation
       @params = process_params(params)
 
-      @result = scopes.inject(relation) do |result, scope|
-        scope.chain(@params, result)
+      @result = mappings.inject(relation) do |result, mapping|
+        mapping.chain(@params, result)
       end
     end
 

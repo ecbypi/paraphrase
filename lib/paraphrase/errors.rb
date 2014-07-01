@@ -1,3 +1,3 @@
 module Paraphrase
-  class DuplicateScopeError < StandardError; end
+  class DuplicateMappingError < StandardError; end
 end

@@ -22,11 +22,11 @@ module Paraphrase
 
     describe ".map" do
       it "adds information to Query.scopes" do
-        expect(PostQuery.scopes).not_to be_empty
+        expect(PostQuery.mappings).not_to be_empty
       end
 
       it "raises an error if a scope is added twice" do
-        expect { PostQuery.map :name, to: :titled }.to raise_error Paraphrase::DuplicateScopeError
+        expect { PostQuery.map :name, to: :titled }.to raise_error Paraphrase::DuplicateMappingError
       end
 
       it 'defines readers for each key' do
