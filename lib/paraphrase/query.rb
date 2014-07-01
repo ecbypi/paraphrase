@@ -62,7 +62,7 @@ module Paraphrase
       scope_name = options[:to]
 
       if mappings.any? { |mapping| mapping.name == scope_name }
-        raise DuplicateMappingError, "scope :#{scope_name} has already been mapped"
+        raise DuplicateMappingError.new(scope_name)
       end
 
       mappings << Mapping.new(keys, options)

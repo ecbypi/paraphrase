@@ -7,7 +7,7 @@ module Paraphrase
       name.constantize
     rescue NameError => e
       if e.message =~ /uninitialized constant/
-        raise Paraphrase::NoQueryDefined.new("No query class found. #{name} must be defined as a subclass of Paraphrase::Query")
+        raise Paraphrase::NoQueryDefined.new(name)
       end
     end
 
