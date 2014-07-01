@@ -38,7 +38,6 @@ ActiveRecord::Schema.define do
 end
 
 ActiveRecord::Base.extend Paraphrase::Syntax
-ActiveRecord::Relation.send(:include, Paraphrase::Syntax)
 
 class User < ActiveRecord::Base
   has_many :accounts
