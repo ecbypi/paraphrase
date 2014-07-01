@@ -2,6 +2,7 @@ require 'active_support/concern'
 require 'active_model/naming'
 
 module Paraphrase
+  # @api private
   module ActiveModel
     extend ActiveSupport::Concern
 
