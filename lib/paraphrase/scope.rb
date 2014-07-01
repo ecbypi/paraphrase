@@ -39,8 +39,7 @@ module Paraphrase
     # @return [ActiveRecord::Relation]
     def chain(params, relation)
       if required_keys.all? { |key| params[key] }
-        klass = relation.respond_to?(:klass) ? relation.klass : relation
-        arity = klass.method(name).arity
+        arity = relation.klass.method(name).arity
 
         if arity == 0
           relation.send(name)

@@ -11,7 +11,7 @@ module Paraphrase
         expect_any_instance_of(AccountQuery).to receive(:result).and_call_original
 
         result = Account.paraphrase
-        expect(result).to eq Account
+        expect(result).to eq Account.all
       end
 
       it 'raises if query class is not defined' do

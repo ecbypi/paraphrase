@@ -12,7 +12,11 @@ module Paraphrase
     include ActiveModel
     # @!attribute [r] scopes
     #   @return [Array<Scope>] scopes for query
-    class_attribute :scopes, :_source, instance_writer: false
+    # @!attribute [r] source
+    #   @return [Symbol, String] name of the class to use as the source for the
+    #   query
+    class_attribute :scopes, instance_writer: false
+    class_attribute :source, instance_writer: false, instance_reader: false
 
     # @!attribute [r] params
     #   @return [HashWithIndifferentAccess] filtered parameters based on keys defined in scopes
@@ -24,14 +28,7 @@ module Paraphrase
     # Set `scopes` on inheritance to ensure they're unique per subclass
     def self.inherited(klass)
       klass.scopes = []
-    end
-
-    # Specify the `ActiveRecord` source class if not determinable from the name
-    # of the `Paraphrase::Query` subclass.
-    #
-    # @param [String, Symbol] name name of the source class
-    def self.source(name)
-      self._source = name.to_s
+      klass.source = klass.to_s.sub(/Query$/, '')
     end
 
     # Keys being mapped to scopes
@@ -72,7 +69,8 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     # @param [ActiveRecord::Relation] relation object to apply methods to
-    def initialize(params = {}, relation = source)
+    def initialize(params = {}, relation = nil)
+      relation ||= default_relation
       @params = process_params(params)
 
       @result = scopes.inject(relation) do |result, scope|
@@ -81,15 +79,13 @@ module Paraphrase
     end
 
     # Return an `ActiveRecord::Relation` corresponding to the source class
-    # determined from the `_source` class attribute or the name of the query
-    # class.
+    # determined from the `source` class attribute that defaults to the name of
+    # the class.
     #
     # @return [ActiveRecord::Relation]
-    def source
-      @source ||= begin
-        name = _source || self.class.to_s.sub(/Query$/, '')
-        name.constantize
-      end
+    def default_relation
+      klass = self.class.source.to_s.constantize
+      klass.default_paraphrase_relation
     end
 
     # @see Query.keys

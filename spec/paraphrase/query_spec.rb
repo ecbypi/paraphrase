@@ -45,15 +45,15 @@ module Paraphrase
 
     describe '#source' do
       it 'is determined via query class name' do
-        expect(PostQuery.new.result).to eq Post
+        expect(PostQuery.source).to eq 'Post'
       end
 
       it 'can be manually specified in the class' do
         klass = Class.new(Query) do
-          source :User
+          self.source = :User
         end
 
-        expect(klass.new.result).to eq User
+        expect(klass.source).to eq :User
       end
     end
 

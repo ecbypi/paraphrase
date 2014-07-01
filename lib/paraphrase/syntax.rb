@@ -15,7 +15,17 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     def paraphrase(params = {})
-      paraphraser.new(params, self).result
+      paraphraser.new(params, default_paraphrase_relation).result
+    end
+
+    def default_paraphrase_relation
+      if is_a? ActiveRecord::Relation
+        self
+      elsif ActiveRecord::VERSION::MAJOR > 3
+        all
+      else
+        scoped
+      end
     end
   end
 

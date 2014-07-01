@@ -42,7 +42,7 @@ symbol to the `source` method.
 # app/queries/admin_post_query.rb
 class AdminPostQuery < Paraphrase::Query
   # This needs the source specific since it will look for an `AdminPost` model.
-  source :Post
+  self.source = :Post
 end
 ```
 
