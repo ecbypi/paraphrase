@@ -6,7 +6,13 @@ module Paraphrase
       @params = params.with_indifferent_access.slice(*keys)
 
       @result = @params.inject(HashWithIndifferentAccess.new) do |result, (key, value)|
-        value = respond_to?(key) ? send(key) : scrub(@params[key])
+        value = @params[key]
+
+        if respond_to?(key)
+          value = send(key)
+        end
+
+        value = scrub(value)
 
         if value.present?
           result[key] = value
