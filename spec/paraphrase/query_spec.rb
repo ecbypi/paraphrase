@@ -40,7 +40,7 @@ module Paraphrase
       end
 
       it 'defines readers for each key' do
-        query = PostQuery.new
+        query = PostQuery.new(Hash.new)
 
         expect(query).to respond_to :title
         expect(query).to respond_to :is_published

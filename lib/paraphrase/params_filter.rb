@@ -2,8 +2,8 @@ module Paraphrase
   class ParamsFilter
     attr_reader :params, :result
 
-    def initialize(params, keys)
-      @params = params.with_indifferent_access.slice(*keys)
+    def initialize(unfiltered_params, keys)
+      @params = unfiltered_params.with_indifferent_access.slice(*keys)
 
       @result = @params.inject(HashWithIndifferentAccess.new) do |result, (key, value)|
         value = @params[key]

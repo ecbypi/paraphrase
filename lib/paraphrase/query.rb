@@ -97,11 +97,10 @@ module Paraphrase
     #
     # @param [Hash] params query parameters
     # @param [ActiveRecord::Relation] relation object to apply methods to
-    def initialize(params = {}, relation = nil)
-      relation ||= default_relation
-      @params = filter_params(params)
+    def initialize(query_params, relation = nil)
+      @params = filter_params(query_params || {})
 
-      @result = mappings.inject(relation) do |result, mapping|
+      @result = mappings.inject(relation || default_relation) do |result, mapping|
         repository.chain(result, mapping, @params)
       end
     end
