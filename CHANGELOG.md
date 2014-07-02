@@ -1,4 +1,16 @@
-## 0.9.0
+## Next Release
+
+* Add convenience class-level API for pre-processing query params
+* Pre-process params and then scrub them from
+* Rename `Scope` to the more appropriate `Mapping`
+* Mark `Mapping` and `ActiveModel` classes as private API
+* Add ability to define scopes in the `Query` subclass via `Paraphrase::Repository`
+  (see README)
+* Refactor `Query.source` to be a regular class attribute
+* Require `Paraphrase::Query` be initialized with an `ActiveRecord::Relation`
+  instance. Ensure this happens in `Paraphrase::Syntax`.
+
+## 0.9.0 / 5-2-2014
 
 * Define methods to process query params on a subclass of `Paraphrase::Params`
   that also handles filtering blank query params.
