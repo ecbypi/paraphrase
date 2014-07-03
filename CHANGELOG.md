@@ -1,14 +1,21 @@
-## Next Release
+## 0.10.0 / 7-3-2014
 
-* Add convenience class-level API for pre-processing query params
-* Pre-process params and then scrub them from
-* Rename `Scope` to the more appropriate `Mapping`
+* Change `Paraphrase::Query.source` to be a regular class attribute, removing
+  the DSL method `source` for defining the source.
+* Add convenience class-level API for pre-processing query params.
+* Rename `Params` to `ParamsFilter`. Always define a `ParamsFilter` subclass
+  for each `Paraphrase::Query` subclass on inheritance.
+* Make params filtering consistent. Run custom method defiend on `ParamsFilter`
+  and then call `scrub` on the return value. Previously, `scrub` would not be
+  called if a custom method was defined.
+* Rename `Scope` to the more appropriate `Mapping`.
 * Mark `Mapping` and `ActiveModel` classes as private API
-* Add ability to define scopes in the `Query` subclass via `Paraphrase::Repository`
-  (see README)
-* Refactor `Query.source` to be a regular class attribute
-* Require `Paraphrase::Query` be initialized with an `ActiveRecord::Relation`
-  instance. Ensure this happens in `Paraphrase::Syntax`.
+* Add `Paraphrase::Repository` for defining model scopes in a
+  `Paraphrase::Query` subclass.  Scopes can be defined by re-opening the
+  `Repository` class available in any `Paraphrase::Query` subclass or using
+  `Query.scope` DSL. See README for more.
+* Require `Paraphrase::Query` be initialized with an instance of
+  `ActiveRecord::Relation`. Update `Paraphrase::Syntax`
 
 ## 0.9.0 / 5-2-2014
 
