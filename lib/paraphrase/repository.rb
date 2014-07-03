@@ -1,16 +1,16 @@
 module Paraphrase
   class Repository
-    attr_reader :relation, :mapping
+    attr_reader :relation, :mapping, :params
 
     def self.chain(relation, mapping, params)
-      new(relation, mapping).chain(params)
+      new(relation, mapping, params).chain
     end
 
-    def initialize(relation, mapping)
-      @relation, @mapping = relation, mapping
+    def initialize(relation, mapping, params)
+      @relation, @mapping, @params = relation, mapping, params
     end
 
-    def chain(params)
+    def chain
       if mapping.satisfied?(params)
 
         if scope.arity.zero?
