@@ -15,19 +15,16 @@ module Paraphrase
     include ActiveModel
     # @!attribute [r] mappings
     #   @return [Array<Paraphrase::Mapping>] mappings for query
-    # @!attribute [r] source
-    #   @return [Symbol, String] name of the class to use as the source for the
-    #   query
     class_attribute :mappings, instance_writer: false
     class_attribute :source, instance_writer: false, instance_reader: false
     class_attribute :params_filter, instance_writer: false
     class_attribute :repository, instance_writer: false
 
     # @!attribute [r] params
-    #   @return [HashWithIndifferentAccess] filtered parameters based on keys defined in `mappings`
-    #
+    #   @return [HashWithIndifferentAccess] filtered parameters based on keys
+    #     defined in `mappings`
     # @!attribute [r] result
-    #   @return [ActiveRecord::Relation]
+    #   @return [ActiveRecord::Relation] resulting {ActiveRecord::Relation} instance from queries
     attr_reader :params, :result
 
     # Set `mappings` on inheritance to ensure they're unique per subclass
@@ -42,15 +39,15 @@ module Paraphrase
       klass.const_set(:Repository, klass.repository)
     end
 
-    # Keys being mapped to scopes
+    # Keys mapped to scopes
     #
     # @return [Array<Symbol>]
     def self.keys
       mappings.flat_map(&:keys)
     end
 
-    # Add a {Mapping} instance to {Query#mappings}. Defines a reader for each
-    # key to read from {Query#params}.
+    # Add a {Mapping} instance to {Query#mappings}. Defines a reader
+    # for each key to read from {Query#params}.
     #
     # @overload map(*keys, options)
     #   Maps a key to a scope
@@ -78,7 +75,7 @@ module Paraphrase
     # param
     #
     # @param [Symbol] query_param query param to process
-    # @param [Proc] block block to process the query param
+    # @param [Proc] block block to process the specified `query_param`
     def self.param(query_param, &block)
       params_filter.class_eval do
         define_method(query_param, &block)
@@ -86,6 +83,9 @@ module Paraphrase
     end
 
     # Define a scope on `Repository`
+    #
+    # @param [Symbol] scope_name name of the scope specified in {Query.map}
+    # @param [Proc] block body of the scope to be defined
     def self.scope(scope_name, &block)
       repository.class_eval do
         define_method(scope_name, &block)
@@ -95,8 +95,8 @@ module Paraphrase
     # Filters out parameters irrelevant to the query and sets the base scope
     # for to begin the chain.
     #
-    # @param [Hash] params query parameters
-    # @param [ActiveRecord::Relation] relation object to apply methods to
+    # @param [Hash] query_params query parameters
+    # @param [ActiveRecord::Relation] relation relation object to apply methods to
     def initialize(query_params, relation = nil)
       @params = filter_params(query_params || {})
 

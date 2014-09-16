@@ -1,4 +1,10 @@
 module Paraphrase
+  # {Repository} is were query-specific scopes are defined. They can be defined
+  # by re-opening the class inside the {Query} class definition or by using the
+  # {Query.scope scope} class method on {Query}. Both methods are equivalent.
+  #
+  # Inside scopes defined on a {Repository}, the method has access to
+  # {Query#params} as `params`.
   class Repository
     attr_reader :relation, :mapping, :params
 

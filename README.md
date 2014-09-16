@@ -3,8 +3,83 @@
 [![Code Climate](https://codeclimate.com/github/ecbypi/paraphrase.png)](https://codeclimate.com/github/ecbypi/paraphrase)
 [![Build Status](https://travis-ci.org/ecbypi/paraphrase.png?branch=master)](https://travis-ci.org/ecbypi/paraphrase)
 
-Paraphrase provides a way to map query params to model scopes and
-only apply scopes when the mapped query params are present.
+`paraphrase` provides a way to map query params to model scopes and only apply
+scopes when the mapped query params are present, removing all the conditional
+checks you might perform in your controller to determine if a scope needs to be
+applied.
+
+With `paraphrase`, you can also de-clutter your model by removing
+context-specific scopes into the query builder.
+
+Take the following example:
+
+```ruby
+class PostsController < ActiveRecord::Base
+  def index
+    @posts = Post.all
+
+    names = params[:names]
+
+    if names && names.delete_if { |name| name.blank? }.present?
+      @posts = @posts.published_by(names)
+    end
+
+    start_date = Time.zone.parse(params[:start_date])
+    end_date = Time.zone.parse(params[:end_date])
+
+    if start_date && end_date
+      @posts = @posts.published_within(start_date, end_date)
+    end
+  end
+end
+
+class Post < ActiveRecord::Base
+  def self.published_by(names)
+    joins(:user).where(users: { name: names })
+  end
+
+  def self.published_within(start_date, end_date)
+    where(published_at: start_date..end_date)
+  end
+end
+```
+
+As the number of options for the query grows, the `index` method will continue
+to accrue with conditional checks and the model will become bloated with that
+are might only used in the controller.
+
+By using paraphrase, the controller and model can be simplified to:
+
+```ruby
+class PostsController < ActiveRecord::Base
+  def index
+    @posts = Post.paraphrase(params)
+  end
+end
+
+class PostQuery < Paraphrase::Query
+  map :names, to: :published_by
+  map :start_date, :end_date, to: :published_within
+
+  param :start_date do
+    Time.zone.parse(params[:start_date]) rescue nil
+  end
+
+  param :end_date do
+    Time.zone.parse(params[:end_date]) rescue nil
+  end
+
+  scope :published_by do |user_names|
+    relation.joins(:user).where(users: { name: user_names })
+  end
+end
+
+class Post < ActiveRecord::Base
+  def self.published_within(start_date, end_date)
+    where(published_at: start_date..end_date)
+  end
+end
+```
 
 ## Installation
 
@@ -22,106 +97,8 @@ $ gem install paraphrase
 
 ## Usage
 
-Subclass `Paraphrase::Query` and use `map` to define what query params should
-be applied to which scopes.
-
-```ruby
-# app/queries/post_query.rb
-class PostQuery < Paraphrase::Query
-  map :author, to: :by_user
-  map :start_date, :end_date, to: :published_within
-end
-```
-
-By default, the `ActiveRecord` class is introspected from the demodulized class
-name of the `Paraphrase::Query` sublcass.  If the name of the query class is
-not `<model>Query`, the source can be manually specified by passing a string or
-symbol to the `source` method.
-
-```ruby
-# app/queries/admin_post_query.rb
-class AdminPostQuery < Paraphrase::Query
-  # This needs the source specific since it will look for an `AdminPost` model.
-  self.source = :Post
-end
-```
-
-To build the query, call `.paraphrase` on your model.  Only scopes whose keys are all
-provided will be applied.
-
-```ruby
-# Based on the example `PostQuery` above, this will only apply `Post.by_user`
-# and skip `Post.published_within` since `:end_date` is missing.
-Post.paraphrase(author: 'Jim')
-```
-
-All unregistered keys are filered out of the params that are passed to `.paraphrase`.
-
-```ruby
-class PostsController < ApplicationController
-  respond_to :html, :json
-
-  def index
-    # Will filter out keys such as `:action` and `:controller`
-    @posts = Post.paraphrase(params)
-    respond_with(@posts)
-  end
-end
-```
-
-`Paraphrase::Query` will recursively determine if the value of the query
-param is empty. If the value is an array containing empty strings, the empty
-strings will be removed before being passed to the scope. If the array is empty
-after removing empty strings, the scope will not be called since an empty array
-is considered a blank value.
-
-```ruby
-class UserQuery < Paraphrase::Query
-  map :names, to: :with_name
-end
-
-class User < ActiveRecord::Base
-  def self.with_name(names)
-    where(name: names)
-  end
-end
-
-User.paraphrase(names: ['', 'Jim']).to_sql
-# => SELECT "users".* FROM "users" WHERE "users"."name" IN ['Jim']
-
-User.paraphrase(names: ['', '']).to_sql
-# => SELECT "users".* FROM "users"
-```
-
-You can chain queries on an `ActiveRecord::Relation`. This avoids adding scopes
-that replicate the functionality of an association like
-`Post.for_user(user_id)` or allow you to build a default scope.
-
-```ruby
-class PostsController < ApplicationController
-  respond_to :html, :json
-
-  # GET /users/:id/posts
-  def index
-    @user = User.find(params[:user_id])
-
-    # This will scope the query to posts where `posts`.`user_id` = `users`.`id`
-    @posts = @users.posts.paraphrase(params[:q])
-
-    # Or you can build at a different point in a scope chain
-    # @posts = @user.posts.published.paraphrase(params[:q])
-    #
-    # Order is independent too
-    # @posts = @user.posts.paraphrase(params[:q]).published
-
-    respond_with(@posts)
-  end
-end
-```
-
-### Query Class DSL
-
 Scopes are mapped to param keys using `map`.  You can specify one or more keys.
+The scope will only be called if all the keys are present.
 
 ```ruby
 class PostQuery < Paraphrase::Query
@@ -138,35 +115,84 @@ class Post < ActiveRecord::Base
     where(published_on: pub_date)
   end
 end
+
+Post.paraphrase(first_name: 'Jon', last_name: 'Richards', pub_date: '2010-10-01')
+  # => SELECT "posts".* FROM "posts"i
+  #    WHERE "posts"."first_name" = 'Jon'
+  #      AND "posts.last_name" = 'Richards'
+  #      AND "posts.published_on" = '2010-10-01'
+
+Post.paraphrase(first_name: 'Jon', pub_date: '2010-10-01')
+  # => SELECT "posts".* FROM "posts" WHERE "posts.published_on" = '2010-10-01'
 ```
 
+### Changing the Model Class Used
+
+By default, the `ActiveRecord` class is determined from the `demodulize`'d name
+of the `Paraphrase::Query` sublcass.  For instance, `DeliveryQuery` will use the
+`Delivery` model by default.
+
+If the name of the query class does not match this convention, the source can be
+specified by setting the `source` class atribute.
+
+```ruby
+# app/queries/admin_post_query.rb
+class AdminPostQuery < Paraphrase::Query
+  self.source = :Post
+end
+```
+
+### Whitelisting Query Params
+
 If multiple query params are mapped to a scope, but only a subset are required,
-use the `:whitelist` option to allow them to be blank. The `:whitelist`
-option can be set to `true`, an individual key or an array of keys.
+use the `:whitelist` option to allow them to be blank. The `:whitelist` option
+can be set to `true` to whitelist all keys, an individual key or an array of
+keys.
 
 ```ruby
 class PostQuery < Paraphrase::Query
-  # requires only :last_name to be passed in, :first_name can be nil
   map :first_name, :last_name, to: :by_author, whitelist: :last_name
+  map :pub_date, to: :pub_date
 end
 
 class Post < ActiveRecord::Base
+  # `last_name` will be `nil` if not supplied.
   def self.by_author(first_name, last_name)
-    query = where(user: { first_name: first_name })
+    query = where(users: { first_name: first_name })
 
+    # Only filter by `:last_name` if supplied
     if last_name
-      query = query.where(user: { last_name: last_name })
+      query = query.where(users: { last_name: last_name })
     end
 
     query
   end
 end
 
-Post.paraphrase(first_name: 'John').to_sql
-  # => SELECT "posts".* FROM "posts" WHERE "posts"."first_name" = 'John'
+Post.paraphrase(first_name: 'Jon', pub_date: '2010-10-01')
+  # => SELECT "posts".* FROM "posts"i
+  #    WHERE "posts"."first_name" = 'Jon'
+  #      AND "posts.published_on" = '2010-10-01'
+```
 
-Post.paraphrase(first_name: 'John', last_name: 'Smith').to_sql
-  # => SELECT "posts".* FROM "posts" WHERE "posts"."first_name" = 'John' AND "posts"."last_name" = 'Smith'
+Whitelisting is also useful for query params that are optional and have a
+default, implied value such as with sorting:
+
+```ruby
+class PostQuery < Paraphrase::Query
+  map :sort, to: :sorted_by, whitelist: true
+end
+
+class Post < ActiveRecord::Base
+  def self.sorted_by(sort_direction)
+    case sort_direction
+    when nil, 'newest'
+      order(created_at: :desc)
+    else
+      order(:created_at)
+    end
+  end
+end
 ```
 
 ### Boolean Scopes
@@ -194,21 +220,50 @@ Post.paraphrase(published: '1').to_sql
   # => SELECT "posts".* FROM "posts" WHERE "posts"."published" = 't'
 ```
 
-### Pre-processing Query Params
+### Filtering `blank` Values
 
-To pre-process a query param, such as an ISO formatted date, you can either use
-the `param` class method or re-open the `ParamsFilter` class that is defined
-when inheriting from `Paraphrase::Query`. Using the `param` class method
-defines the equivalent method on the `ParamsFilter` class.
+By default, `paraphrase` will recursively determine if the value of a query
+param is `blank?`. This is meant to deal with form submissions, since blank
+values are submitted even if the input is not filled in.
 
-In the method, you have access to the `params` attribute that represents the
-original, unprocessed params.
+For example, if the value is an array containing empty strings, the empty
+strings will be removed before being passed to the scope. If the array is empty
+after removing empty strings, the scope will not be called since an empty array
+is considered a blank value.
+
+```ruby
+class UserQuery < Paraphrase::Query
+  map :names, to: :with_name
+end
+
+class User < ActiveRecord::Base
+  def self.with_name(names)
+    where(name: names)
+  end
+end
+
+User.paraphrase(names: ['', 'Jim']).to_sql
+# => SELECT "users".* FROM "users" WHERE "users"."name" IN ['Jim']
+
+User.paraphrase(names: ['', '']).to_sql
+# => SELECT "users".* FROM "users"
+```
+
+### Pre-processing Values
+
+To pre-process a query param, such as an ISO formatted date, you can use the
+`param` class method or re-open the `ParamsFilter` class that is defined when
+inheriting from `Paraphrase::Query`. Using the `param` class method defines the
+equivalent method on the `ParamsFilter` class.
+
+In the method, you have access to `params` that represents the original,
+unprocessed params.
 
 ```ruby
 class PostQuery < Paraphrase::Query
   map :start_date, :end_date, to: :published_within
 
-  class ParamsFilter
+  class ParamsFilter < Paraphrase::ParamsFilter
     def start_date
       Time.zone.parse(params[:start_date]) rescue nil
     end
@@ -225,24 +280,30 @@ class Post < ActiveRecord::Base
   end
 end
 
+Post.parahrase(start_date: '2011-03-21', end_date: '2013-03-25').to_sql
+  # => SELECT "posts".* FROM "posts"
+       WHERE "posts"."published_at" BETWEEN '2011-03-21' AND '2013-03-25'
+
+# The typo in the `start_date` query param causes `Time.zone.parse` to fail so
+# the pre-procssed `start_date` is `nil`. Since not all params are present, the
+# scope is not run.
 Post.parahrase(start_date: '201-03-21', end_date: '2013-03-25').to_sql
   # => SELECT "posts".* FROM "posts"
 ```
 
 In the above example, if either `:start_date` or `:end_date` are incorrectly
-formatted, the `pubished_within` scope will not be applied because the values
-are will be `nil`.
+formatted, the `pubished_within` scope will not be applied since
+`Time.zone.parse` will fail and return `nil`.
 
-### Define scopes on the `Query` class
+### Define scopes in the `Query` class
 
-If your model is cluttered with scopes that aren't general-purpose, and only
-used by your query class, you can define them in the query class. You can
-define scopes by re-opening the `Repository` class defined on inheritance from
-`Paraphrase::Query`. There is also the `scope` class method that serves as a
-proxy for defining methods on the `Repository` class.
+Scopes can be defined in the `Query` class using the `scope` keyword or
+re-opening the `Repository` class defined in the `Query` subclass. This helps to
+avoid cluttering the model class with scopes that are only used by the query
+class.
 
-In the method, you have to call the scope on the `relation` property of the
-`Repository` instance.
+When defining scopes this way, any `ActiveRecord::Relation` methods should be
+called on the `relation` property of the `Repository` instance.
 
 ```ruby
 class PostQuery < Paraphrase::Query
@@ -254,18 +315,17 @@ class PostQuery < Paraphrase::Query
     relation.joins(:user).where(users: { name: authors })
   end
 
-  # OR
-  # class Repository
-  #   def by_users(authors)
-  #     relation.joins(:user).where(users: { name: authors })
-  #   end
-  # end
+  class Repository < Paraphrase::Repository
+    def titled(post_title)
+      relation.where(title: post_title)
+    end
+  end
 end
 
 class Post < ActiveRecord::Base
 end
 
-Post.paraphrase(authors: ['Robert', 'Susie']).to_sql
+Post.paraphrase(authors: ['Robert', 'Susie'], title: 'Sunshine').to_sql
 # => SELECT "posts".* FROM "posts"
 #    INNER JOIN "users" ON "users"."id" = "posts"."user_id"
 #    WHERE "users"."name" IN ('Robert', 'Susie')
