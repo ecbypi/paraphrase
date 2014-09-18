@@ -17,7 +17,7 @@ module Paraphrase
 
       class Repository
         def published_between(start_date, end_date)
-          where(published_at: start_date..end_date)
+          relation.where(published_at: start_date..end_date)
         end
       end
 
@@ -89,18 +89,23 @@ module Paraphrase
     end
 
     it 'skips scopes if query params are missing' do
-      expect(Post).not_to receive(:published_between)
-      expect(Post).not_to receive(:titled)
-      expect(Post).not_to receive(:by_users)
-      expect(Post).to receive(:published)
-
-      PostQuery.new(
+      post = Post.create!(
+        published_at: Time.local(2009, 10, 30),
+        title: 'bar',
+        user: User.create!,
+        published: true
+      )
+      params = {
         start_date: Time.local(2010, 10, 30),
         end_date: 'foo',
         is_published: '1',
         authors: [],
         title: ['', {}]
-      )
+      }
+
+      query = PostQuery.new(params)
+
+      expect(query.result).to eq [post]
     end
 
     it 'supports defining scopes in the query class' do
