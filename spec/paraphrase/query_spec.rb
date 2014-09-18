@@ -8,6 +8,7 @@ module Paraphrase
       map :is_published, to: :published
       map :authors, to: :by_users
       map :start_date, :end_date, to: :published_between
+      map :sort, to: :sort_by
 
       class ParamsFilter
         def start_date
@@ -25,8 +26,16 @@ module Paraphrase
         Time.parse(params[:end_date]) rescue nil
       end
 
+      param :sort do
+        params[:sort].presence || "newest"
+      end
+
       scope :by_users do |authors|
         relation.joins(:user).where(users: { name: authors })
+      end
+
+      scope :sort_by do |sort_direction|
+        sort_direction == "newest" ? relation.order("created_at DESC") : relation
       end
     end
 
@@ -85,6 +94,12 @@ module Paraphrase
 
         expect(query.params[:authors]).to eq ['kevin']
         expect(query.params).not_to have_key :title
+      end
+
+      it "can have default values defined" do
+        query = PostQuery.new(Hash.new)
+
+        expect(query.sort).to eq "newest"
       end
     end
 

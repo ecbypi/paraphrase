@@ -22,13 +22,8 @@ module Paraphrase
     def initialize(unfiltered_params, keys)
       @params = unfiltered_params.with_indifferent_access.slice(*keys)
 
-      @result = @params.inject(HashWithIndifferentAccess.new) do |result, (key, value)|
-        value = @params[key]
-
-        if respond_to?(key)
-          value = send(key)
-        end
-
+      @result = keys.inject(HashWithIndifferentAccess.new) do |result, key|
+        value = respond_to?(key) ? send(key) : @params[key]
         value = scrub(value)
 
         if value.present?
