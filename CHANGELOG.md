@@ -1,3 +1,22 @@
+## 0.11.0 / 9-17-2014
+
+* Enable setting default values in param processors. The following will now
+  work:
+
+```ruby
+class PostQuery < Paraphrase::Query
+  map :sort, to: :sorted_by
+
+  param :sort do
+    params[:sort].presence || "newest"
+  end
+
+  scope :sorted_by do |sort_direction|
+    sort_direction == "newest" ? relation.order(created_at: :desc) : relation.order(:created_at)
+  end
+end
+```
+
 ## 0.10.0 / 7-3-2014
 
 * Change `Paraphrase::Query.source` to be a regular class attribute, removing
