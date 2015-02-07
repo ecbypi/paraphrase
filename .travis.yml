@@ -1,3 +1,4 @@
+sudo: false
 rvm:
   - 1.9.3
   - 2.0.0
@@ -20,3 +21,8 @@ env:
 matrix:
   allow_failures:
     - rvm: rbx-2
+  exclude:
+    - rvm: 2.2.0
+      gemfile: gemfiles/3.1.gemfile
+    - rvm: 2.2.0
+      gemfile: gemfiles/3.2.gemfile
