@@ -22,6 +22,10 @@ module Paraphrase
       true
     end
 
+    def model_name
+      self.class.model_name
+    end
+
     module ClassMethods
       def model_name
         ::ActiveModel::Name.new(self, nil, 'Q')

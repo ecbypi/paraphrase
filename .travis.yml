@@ -9,6 +9,7 @@ gemfile:
   - gemfiles/3.2.gemfile
   - gemfiles/4.0.gemfile
   - gemfiles/4.1.gemfile
+  - gemfiles/4.2.gemfile
 install: 'travis_retry bundle install -j 4'
 script: 'bundle exec rake'
 env:

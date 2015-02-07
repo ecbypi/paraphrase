@@ -30,7 +30,7 @@ ActiveRecord::Schema.define do
     t.boolean :published
     t.datetime :published_at
     t.references :user
-    t.timestamps
+    t.timestamps null: false
   end
 
   create_table :accounts, force: true do |t|

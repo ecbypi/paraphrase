@@ -184,9 +184,9 @@ module Paraphrase
         expect(markup).to match(/<select.*name="q\[start_date\(2i\)/)
         expect(markup).to match(/<select.*name="q\[start_date\(3i\)/)
 
-        expect(markup).to match(/<option.*selected="selected" value="2012"/)
-        expect(markup).to match(/<option.*selected="selected" value="10"/)
-        expect(markup).to match(/<option.*selected="selected" value="1"/)
+        expect(markup).to match(/<option(.*(selected="selected"|value="2012")){2}/)
+        expect(markup).to match(/<option(.*(selected="selected"|value="10")){2}/)
+        expect(markup).to match(/<option(.*(selected="selected"|value="1")){2}/)
       end
     end
   end

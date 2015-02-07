@@ -24,11 +24,11 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 1.9.3'
 
-  gem.add_dependency 'activerecord', '>= 3.1', '< 4.2'
-  gem.add_dependency 'activesupport', '>= 3.1', '< 4.2'
-  gem.add_dependency 'activemodel', '>= 3.1', '< 4.2'
+  gem.add_dependency 'activerecord', '>= 3.1', '< 5.0'
+  gem.add_dependency 'activesupport', '>= 3.1', '< 5.0'
+  gem.add_dependency 'activemodel', '>= 3.1', '< 5.0'
 
-  gem.add_development_dependency 'actionpack', '>= 3.1', '< 4.2'
+  gem.add_development_dependency 'actionpack', '>= 3.1', '< 5.0'
   gem.add_development_dependency 'bundler', '~> 1.0'
   gem.add_development_dependency 'yard', '~> 0.7'
   gem.add_development_dependency 'rspec', '~> 3.0'
