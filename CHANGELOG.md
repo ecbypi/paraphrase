@@ -1,3 +1,8 @@
+## 0.12.0 / 2-7-2015
+
+* Add Rails 4.2 support
+* Add `Pararhase::Query#model_name` to support `action_view` 4.2
+
 ## 0.11.0 / 9-17-2014
 
 * Enable setting default values in param processors. The following will now
