@@ -2,8 +2,8 @@ sudo: false
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.5
-  - 2.2.0
+  - 2.1.6
+  - 2.2.2
   - jruby-19mode
   - rbx-2
 gemfile:
@@ -22,7 +22,7 @@ matrix:
   allow_failures:
     - rvm: rbx-2
   exclude:
-    - rvm: 2.2.0
+    - rvm: 2.2.2
       gemfile: gemfiles/3.1.gemfile
-    - rvm: 2.2.0
+    - rvm: 2.2.2
       gemfile: gemfiles/3.2.gemfile

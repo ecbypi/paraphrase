@@ -32,8 +32,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'bundler', '~> 1.0'
   gem.add_development_dependency 'yard', '~> 0.7'
   gem.add_development_dependency 'rspec', '~> 3.0'
-  gem.add_development_dependency 'rake', '~> 0.9.2'
-  gem.add_development_dependency 'appraisal', '~> 0.4'
+  gem.add_development_dependency "rake", "~> 10.4"
+  gem.add_development_dependency "appraisal", ">= 1.0"
   gem.add_development_dependency 'pry', '~> 0.9'
   gem.add_development_dependency 'codeclimate-test-reporter', '~> 0.3'
 
@@ -42,6 +42,6 @@ Gem::Specification.new do |gem|
     gem.add_development_dependency 'jdbc-sqlite3'
   else
     gem.add_development_dependency 'sqlite3',  '~> 1.3.6'
-    gem.add_development_dependency 'redcarpet', '~> 2.1.1'
+    gem.add_development_dependency "redcarpet", "~> 3.2"
   end
 end
