@@ -22,26 +22,19 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ['lib']
 
-  gem.required_ruby_version = '>= 1.9.3'
+  gem.required_ruby_version = '>= 2.3.0'
 
-  gem.add_dependency 'activerecord', '>= 3.1', '< 5.0'
-  gem.add_dependency 'activesupport', '>= 3.1', '< 5.0'
-  gem.add_dependency 'activemodel', '>= 3.1', '< 5.0'
+  gem.add_dependency 'activerecord', '>= 4.2', '< 6.0'
+  gem.add_dependency 'activesupport', '>= 4.2', '< 6.0'
+  gem.add_dependency 'activemodel', '>= 4.2', '< 6.0'
 
-  gem.add_development_dependency 'actionpack', '>= 3.1', '< 5.0'
+  gem.add_development_dependency 'actionpack', '>= 4.2', '< 6.0'
   gem.add_development_dependency 'bundler', '~> 1.0'
   gem.add_development_dependency 'yard', '~> 0.7'
   gem.add_development_dependency 'rspec', '~> 3.0'
-  gem.add_development_dependency "rake", "~> 10.4"
+  gem.add_development_dependency "rake", "~> 12.3"
   gem.add_development_dependency "appraisal", ">= 1.0"
   gem.add_development_dependency 'pry', '~> 0.9'
-  gem.add_development_dependency 'codeclimate-test-reporter', '~> 0.3'
-
-  if RUBY_PLATFORM == 'java'
-    gem.add_development_dependency 'activerecord-jdbcsqlite3-adapter'
-    gem.add_development_dependency 'jdbc-sqlite3'
-  else
-    gem.add_development_dependency 'sqlite3',  '~> 1.3.6'
-    gem.add_development_dependency "redcarpet", "~> 3.2"
-  end
+  gem.add_development_dependency 'sqlite3',  '~> 1.3.6'
+  gem.add_development_dependency "redcarpet", "~> 3.2"
 end

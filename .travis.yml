@@ -1,28 +1,18 @@
 sudo: false
+cache: bundler
 rvm:
-  - 1.9.3
-  - 2.0.0
-  - 2.1.6
-  - 2.2.2
-  - jruby-19mode
-  - rbx-2
+  - 2.3.7
+  - 2.4.4
+  - 2.5.1
 gemfile:
-  - gemfiles/3.1.gemfile
-  - gemfiles/3.2.gemfile
-  - gemfiles/4.0.gemfile
-  - gemfiles/4.1.gemfile
   - gemfiles/4.2.gemfile
-install: 'travis_retry bundle install -j 4'
+  - gemfiles/5.0.gemfile
+  - gemfiles/5.1.gemfile
+  - gemfiles/5.2.gemfile
+before_install:
+  - gem update --system
+  - gem install bundler
 script: 'bundle exec rake'
-env:
-  global:
-    # Code Climate coverage reporting
-    - secure: "VylP1haJogwCq04GRrM3hVfNT4YJiZ4RJoklOQLgqPMRalOCzVPOIRoTz3qpVbdQHf3l18VhVDrDbu2W2qfBKJq7/anIuYYgPd0uRAGliZD4h5B2PgQDqvPeTEftj/g3IYDh6PvZCuhgnxMdldmSnxd9WAjAnkLtjoiLgE6elCE="
 matrix:
   allow_failures:
-    - rvm: rbx-2
-  exclude:
-    - rvm: 2.2.2
-      gemfile: gemfiles/3.1.gemfile
-    - rvm: 2.2.2
-      gemfile: gemfiles/3.2.gemfile
+    - gemfile: gemfiles/5.2.gemfile
