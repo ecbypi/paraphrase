@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+## [0.13.0] - 2018-04-09
+### Removed
+* Support for ruby < 2.3
+* Support for rails < 4.2
+
 ## [0.12.0] - 2015-02-07
 ### Added
 * Add Rails 4.2 support

@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    paraphrase (0.12.0)
+    paraphrase (0.13.0)
       activemodel (>= 4.2, < 6.0)
       activerecord (>= 4.2, < 6.0)
       activesupport (>= 4.2, < 6.0)
