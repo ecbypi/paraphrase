@@ -108,6 +108,17 @@ module Paraphrase
       end
     end
 
+    # Look up a `params` value
+    #
+    # @param [String,Symbol] key key to read
+    def [](key)
+      unless keys.include?(key.to_sym)
+        raise UndefinedKeyError.new(key, keys)
+      end
+
+      params[key]
+    end
+
     # Return an `ActiveRecord::Relation` corresponding to the source class
     # determined from the `source` class attribute that defaults to the name of
     # the class.

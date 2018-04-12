@@ -169,6 +169,16 @@ module Paraphrase
       expect(query.params[:authors]).to eq "Andre"
     end
 
+    describe "#[]" do
+      it "raises if argument is not in set of defined keys" do
+        query = PostQuery.new(title: "Another How-To", authors: ["jim"])
+
+        expect(query["authors"]).to eq ["jim"]
+        expect(query[:title]).to eq "Another How-To"
+        expect { query["sorted_by"] }.to raise_error Paraphrase::UndefinedKeyError
+      end
+    end
+
     describe 'is action view compliant' do
       it 'by working with form builders' do
         router = ActionDispatch::Routing::RouteSet.new
