@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'action_view/test_case'
+require "action_controller/metal/strong_parameters"
 
 module Paraphrase
   describe Query do
@@ -153,6 +154,19 @@ module Paraphrase
       expect(result).to include red_post
       expect(result).not_to include blue_post
       expect(result).not_to include green_post
+    end
+
+    it "works with ActionController::Parameters" do
+      query = PostQuery.new(ActionController::Parameters.new(title: "D3 How-To"))
+
+      expect(query.params).to have_key "title"
+    end
+
+    it "handles symbol or string keys when filtering params" do
+      query = PostQuery.new(title: "Top 10", "authors" => "Andre")
+
+      expect(query.params[:title]).to eq "Top 10"
+      expect(query.params[:authors]).to eq "Andre"
     end
 
     describe 'is action view compliant' do

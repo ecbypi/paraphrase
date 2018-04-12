@@ -17,14 +17,14 @@ module Paraphrase
   # can be re-opened inside the {Query} class definition or by calling the
   # {Query.param param} class method.
   class ParamsFilter
-    attr_reader :params, :result
+    def initialize(params, keys)
+      @keys = keys
+      @params = params
+    end
 
-    def initialize(unfiltered_params, keys)
-      @params = unfiltered_params.with_indifferent_access.slice(*keys)
-
-      @result = keys.inject(HashWithIndifferentAccess.new) do |result, key|
-        value = respond_to?(key) ? send(key) : @params[key]
-        value = scrub(value)
+    def result
+      @keys.inject(ActiveSupport::HashWithIndifferentAccess.new) do |result, key|
+        value = scrub(public_send(key))
 
         if value.present?
           result[key] = value
@@ -32,6 +32,14 @@ module Paraphrase
 
         result
       end
+    end
+
+    def [](key)
+      @params[key.to_sym] || @params[key.to_s]
+    end
+
+    def params
+      self
     end
 
     private
