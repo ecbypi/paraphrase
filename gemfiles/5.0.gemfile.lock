@@ -39,6 +39,7 @@ GEM
       thor (>= 0.14.0)
     arel (7.1.4)
     builder (3.2.3)
+    byebug (10.0.2)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
     crass (1.0.4)
@@ -96,6 +97,7 @@ DEPENDENCIES
   activesupport (~> 5.0.0)
   appraisal (>= 1.0)
   bundler (~> 1.0)
+  byebug (~> 10.0)
   paraphrase!
   pry (~> 0.9)
   rake (~> 12.3)

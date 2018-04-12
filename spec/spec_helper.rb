@@ -5,6 +5,7 @@ end
 
 require 'rspec'
 require 'pry'
+require "byebug"
 require 'paraphrase'
 require 'active_record'
 
