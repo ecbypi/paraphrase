@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## [0.13.1] - 2018-04-12
+### Added
+* Add `Query#[]` for easier, validated lookup of `params` values.
+* Support released version of rails 5.2
+
+### Fixed
+* Correctly handle `ActionController::Parameters` in `ParamsFilter` processing.
+
 ## [0.13.0] - 2018-04-09
 ### Removed
 * Support for ruby < 2.3
