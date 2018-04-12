@@ -14,7 +14,7 @@ appraise '5.1' do
 end
 
 appraise '5.2' do
-  gem 'activerecord', '~> 5.2.0.rc2'
-  gem 'activesupport', '~> 5.2.0.rc2'
-  gem 'actionpack', '~> 5.2.0.rc2'
+  gem 'activerecord', '~> 5.2.0'
+  gem 'activesupport', '~> 5.2.0'
+  gem 'actionpack', '~> 5.2.0'
 end
