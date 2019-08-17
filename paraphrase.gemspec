@@ -14,7 +14,6 @@ Gem::Specification.new do |gem|
                       }
   gem.license       = "MIT"
   gem.authors       = ["Eduardo Gutierrez"]
-  gem.email         = "eduardo@vermonster.com"
   gem.homepage      = "https://github.com/ecbypi/paraphrase"
 
   gem.files         = `git ls-files`.split($/)
