@@ -36,6 +36,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rake", "~> 12.3"
   gem.add_development_dependency "appraisal", ">= 1.0"
   gem.add_development_dependency 'pry', '~> 0.9'
-  gem.add_development_dependency 'sqlite3',  '~> 1.3.6'
+  gem.add_development_dependency 'sqlite3',  '>= 1.3', '< 1.5'
   gem.add_development_dependency "redcarpet", "~> 3.2"
 end
