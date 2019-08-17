@@ -2,7 +2,6 @@
 
 source "https://rubygems.org"
 
-gem "activemodel", "~> 4.2.0"
 gem "actionpack", "~> 4.2.0"
 gem "activerecord", "~> 4.2.0"
 gem "activesupport", "~> 4.2.0"

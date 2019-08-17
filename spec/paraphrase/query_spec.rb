@@ -178,40 +178,5 @@ module Paraphrase
         expect { query["sorted_by"] }.to raise_error Paraphrase::UndefinedKeyError
       end
     end
-
-    describe 'is action view compliant' do
-      it 'by working with form builders' do
-        router = ActionDispatch::Routing::RouteSet.new
-        router.draw do
-          resources :posts
-        end
-
-        controller = ActionView::TestCase::TestController.new
-        controller.instance_variable_set(:@_routes, router)
-        controller.class_eval { include router.url_helpers }
-        controller.view_context.class_eval { include router.url_helpers }
-
-        query = PostQuery.new(title: 'Red', start_date: '2012-10-01')
-
-        markup = ""
-        controller.view_context.form_for query, url: router.url_helpers.posts_path do |f|
-          markup << f.text_field(:title)
-          markup << f.date_select(:start_date)
-        end
-
-        expect(markup).to match(/<input.*type="text"/)
-        expect(markup).to match(/type="text"/)
-        expect(markup).to match(/name="q\[title\]"/)
-        expect(markup).to match(/value="Red"/)
-
-        expect(markup).to match(/<select.*name="q\[start_date\(1i\)/)
-        expect(markup).to match(/<select.*name="q\[start_date\(2i\)/)
-        expect(markup).to match(/<select.*name="q\[start_date\(3i\)/)
-
-        expect(markup).to match(/<option(.*(selected="selected"|value="2012")){2}/)
-        expect(markup).to match(/<option(.*(selected="selected"|value="10")){2}/)
-        expect(markup).to match(/<option(.*(selected="selected"|value="1")){2}/)
-      end
-    end
   end
 end

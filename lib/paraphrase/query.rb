@@ -4,14 +4,12 @@ require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/array/extract_options'
 
-require 'paraphrase/active_model'
 require 'paraphrase/mapping'
 require 'paraphrase/params_filter'
 require 'paraphrase/repository'
 
 module Paraphrase
   class Query
-    include ActiveModel
     # @!attribute [r] mappings
     #   @return [Array<Paraphrase::Mapping>] mappings for query
     class_attribute :mappings, instance_writer: false
