@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## [0.14.0] - 2019-08-17
+### Added
+* Rails 6 support
+* Testing on ruby 2.6
 
 ## [0.13.1] - 2018-04-12
 ### Added
